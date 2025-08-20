@@ -14,39 +14,7 @@ import { format } from 'date-fns'
 import { Post, Analytics } from '@/lib/types'
 import { getPosts, getAnalytics } from '@/lib/storage'
 
-const stats = [
-  { name: 'Scheduled Posts', value: '12', change: '+2', changeType: 'positive' },
-  { name: 'Published This Week', value: '8', change: '+3', changeType: 'positive' },
-  { name: 'Total Engagement', value: '2.4k', change: '+12%', changeType: 'positive' },
-  { name: 'Avg. Reach', value: '15.2k', change: '+8%', changeType: 'positive' },
-]
-
-const recentPosts = [
-  {
-    id: 1,
-    content: "Just launched our new product! 🚀 Excited to share how we're revolutionizing the industry...",
-    platform: 'LinkedIn',
-    scheduledFor: '2024-01-15T10:00:00',
-    status: 'scheduled',
-    engagement: { views: 1200, likes: 89, comments: 12, shares: 5 }
-  },
-  {
-    id: 2,
-    content: "Behind the scenes: Our team working late to perfect the user experience. Dedication pays off! 💪",
-    platform: 'Instagram',
-    publishedAt: '2024-01-14T15:30:00',
-    status: 'published',
-    engagement: { views: 3400, likes: 234, comments: 18, shares: 8 }
-  },
-  {
-    id: 3,
-    content: "5 tips for better productivity that actually work. Thread 🧵",
-    platform: 'LinkedIn',
-    scheduledFor: '2024-01-16T09:00:00',
-    status: 'scheduled',
-    engagement: { views: 0, likes: 0, comments: 0, shares: 0 }
-  },
-]
+// Remove static data since we're using real data now
 
 const quickActions = [
   { name: 'Create Post', icon: PlusIcon, color: 'bg-primary-500' },
@@ -169,11 +137,13 @@ export default function Dashboard() {
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    post.platform === 'LinkedIn' ? 'bg-linkedin text-white' :
-                    post.platform === 'Instagram' ? 'bg-instagram text-white' :
+                    post.platforms.includes('linkedin') ? 'bg-linkedin text-white' :
+                    post.platforms.includes('instagram') ? 'bg-instagram text-white' :
+                    post.platforms.includes('youtube') ? 'bg-youtube text-white' :
+                    post.platforms.includes('reddit') ? 'bg-reddit text-white' :
                     'bg-gray-100 text-gray-800'
                   }`}>
-                    {post.platform}
+                    {post.platforms[0]?.charAt(0).toUpperCase() + post.platforms[0]?.slice(1) || 'Multiple'}
                   </span>
                   <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     post.status === 'scheduled' ? 'bg-yellow-100 text-yellow-800' : 
