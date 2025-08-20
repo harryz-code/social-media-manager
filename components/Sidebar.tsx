@@ -34,6 +34,7 @@ const navigation = [
   { name: 'Calendar', tab: 'calendar', icon: CalendarIcon, activeIcon: CalendarIconSolid },
   { name: 'Bulk Ops', tab: 'bulk', icon: Squares2X2Icon, activeIcon: Squares2X2IconSolid },
   { name: 'Analytics', tab: 'analytics', icon: ChartBarIcon, activeIcon: ChartBarIconSolid },
+  { name: 'API Tester', tab: 'api-tester', icon: Cog6ToothIcon, activeIcon: Cog6ToothIconSolid },
   { name: 'To-Dos', tab: 'todos', icon: CheckCircleIcon, activeIcon: CheckCircleIconSolid },
   { name: 'Settings', tab: 'settings', icon: Cog6ToothIcon, activeIcon: Cog6ToothIconSolid },
 ]

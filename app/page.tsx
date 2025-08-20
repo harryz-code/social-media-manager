@@ -9,8 +9,9 @@ import BulkOperations from '@/components/BulkOperations'
 import Analytics from '@/components/Analytics'
 import Settings from '@/components/Settings'
 import TodoManager from '@/components/TodoManager'
+import APITester from '@/components/APITester'
 
-type ActiveTab = 'dashboard' | 'compose' | 'calendar' | 'bulk' | 'analytics' | 'settings' | 'todos'
+type ActiveTab = 'dashboard' | 'compose' | 'calendar' | 'bulk' | 'analytics' | 'api-tester' | 'settings' | 'todos'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard')
@@ -27,6 +28,8 @@ export default function Home() {
         return <BulkOperations />
       case 'analytics':
         return <Analytics />
+      case 'api-tester':
+        return <APITester />
       case 'settings':
         return <Settings />
       case 'todos':
