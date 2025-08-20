@@ -12,13 +12,16 @@ import {
   LinkIcon,
   EyeIcon,
   EyeSlashIcon,
-  CheckIcon
+  CheckIcon,
+  UserGroupIcon
 } from '@heroicons/react/24/outline'
 import { Post, Platform, AISuggestion } from '@/lib/types'
 import { savePost, getPlatforms, generateId } from '@/lib/storage'
 import { AIService } from '@/lib/ai'
 import { NotificationService } from '@/lib/notifications'
+import { CollaborationService } from '@/lib/collaboration'
 import TemplateSelector from '@/components/TemplateSelector'
+import CollaborationPanel from '@/components/CollaborationPanel'
 import toast from 'react-hot-toast'
 
 const postSchema = z.object({
@@ -38,10 +41,20 @@ export default function PostEditor() {
   const [platforms, setPlatforms] = useState<Platform[]>([])
   const [aiSuggestions, setAiSuggestions] = useState<AISuggestion[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [showCollaboration, setShowCollaboration] = useState(false)
+  const [currentPostId, setCurrentPostId] = useState<string>('')
 
   const handleTemplateSelect = (content: string) => {
     setValue('content', content)
     toast.success('Template applied!')
+  }
+
+  const handleCollaboration = () => {
+    if (!currentPostId) {
+      // Create a temporary post ID for new posts
+      setCurrentPostId('temp_' + Date.now())
+    }
+    setShowCollaboration(true)
   }
 
   // Load platforms on component mount
@@ -96,7 +109,7 @@ export default function PostEditor() {
     try {
       // Get AI suggestions for the first selected platform
       const platform = selectedPlatforms[0] || 'linkedin'
-      const suggestions = await AIService.improveContent(content, platform)
+      const suggestions = await AIService.generateSuggestions(content, platform)
       setAiSuggestions(suggestions)
       
       // Enhance content with AI
@@ -223,6 +236,14 @@ export default function PostEditor() {
               >
                 <EyeIcon className="w-4 h-4 mr-1" />
                 Suggestions
+              </button>
+              <button
+                type="button"
+                onClick={handleCollaboration}
+                className="flex items-center px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-700"
+              >
+                <UserGroupIcon className="w-4 h-4 mr-1" />
+                Collaborate
               </button>
             </div>
           </div>
@@ -400,6 +421,15 @@ export default function PostEditor() {
           )}
         </div>
       </div>
+
+      {/* Collaboration Panel */}
+      <CollaborationPanel
+        postId={currentPostId}
+        currentUserId="current-user"
+        currentUserName="You"
+        isOpen={showCollaboration}
+        onClose={() => setShowCollaboration(false)}
+      />
     </div>
   )
 }

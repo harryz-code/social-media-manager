@@ -1,182 +1,358 @@
-import { AISuggestion } from './types'
+export interface AISuggestion {
+  id: string
+  suggestion: string
+  type: 'hashtag' | 'content' | 'timing' | 'engagement'
+  confidence: number
+  applied: boolean
+}
 
-// Simple AI content improvement service
-export class AIService {
-  private static readonly HASHTAG_SUGGESTIONS = {
-    tech: ['#tech', '#technology', '#innovation', '#startup', '#coding', '#programming', '#ai', '#machinelearning'],
-    business: ['#business', '#entrepreneur', '#startup', '#leadership', '#management', '#strategy', '#growth'],
-    marketing: ['#marketing', '#digitalmarketing', '#socialmedia', '#contentmarketing', '#branding', '#growth'],
-    design: ['#design', '#ux', '#ui', '#webdesign', '#graphicdesign', '#creativity', '#art'],
-    general: ['#inspiration', '#motivation', '#success', '#growth', '#learning', '#development']
+export interface AIResponse {
+  generated_text: string
+  confidence?: number
+}
+
+class HuggingFaceAPI {
+  private static readonly API_KEY = process.env.NEXT_PUBLIC_HUGGING_FACE_API_KEY || ''
+  private static readonly BASE_URL = 'https://api-inference.huggingface.co/models'
+  
+  // Models for different tasks
+  private static readonly MODELS = {
+    TEXT_GENERATION: 'gpt2',
+    SENTIMENT_ANALYSIS: 'cardiffnlp/twitter-roberta-base-sentiment-latest',
+    TEXT_SUMMARIZATION: 'facebook/bart-large-cnn',
+    TEXT_CLASSIFICATION: 'facebook/bart-large-mnli'
   }
 
-  private static readonly CONTENT_IMPROVEMENTS = [
-    'Add a compelling hook at the beginning to grab attention',
-    'Include specific numbers or data points to add credibility',
-    'End with a clear call-to-action to encourage engagement',
-    'Use power words to make your content more impactful',
-    'Break up long paragraphs for better readability',
-    'Ask a question to encourage comments and discussion',
-    'Share a personal story or experience to build connection',
-    'Include industry-specific terminology to show expertise'
-  ]
+  static async generateText(prompt: string, maxLength: number = 100): Promise<string> {
+    try {
+      const response = await fetch(`${this.BASE_URL}/${this.MODELS.TEXT_GENERATION}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          inputs: prompt,
+          parameters: {
+            max_length: maxLength,
+            temperature: 0.7,
+            do_sample: true
+          }
+        })
+      })
 
-  private static readonly TIMING_SUGGESTIONS = [
-    'Post during peak hours (9-11 AM or 1-3 PM) for maximum reach',
-    'Tuesday-Thursday typically see higher engagement rates',
-    'Consider your audience\'s timezone for optimal timing',
-    'Space out posts by at least 2-3 hours to avoid overwhelming followers'
-  ]
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`)
+      }
 
-  static async improveContent(content: string, platform: string): Promise<AISuggestion[]> {
+      const data = await response.json()
+      return data[0]?.generated_text || prompt
+    } catch (error) {
+      console.error('Hugging Face API error:', error)
+      // Fallback to simple text enhancement
+      return this.fallbackEnhancement(prompt)
+    }
+  }
+
+  static async analyzeSentiment(text: string): Promise<'positive' | 'negative' | 'neutral'> {
+    try {
+      const response = await fetch(`${this.BASE_URL}/${this.MODELS.SENTIMENT_ANALYSIS}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          inputs: text
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`)
+      }
+
+      const data = await response.json()
+      const sentiment = data[0]?.[0]?.label?.toLowerCase()
+      
+      if (sentiment?.includes('positive')) return 'positive'
+      if (sentiment?.includes('negative')) return 'negative'
+      return 'neutral'
+    } catch (error) {
+      console.error('Sentiment analysis error:', error)
+      return 'neutral'
+    }
+  }
+
+  static async summarizeText(text: string): Promise<string> {
+    try {
+      const response = await fetch(`${this.BASE_URL}/${this.MODELS.TEXT_SUMMARIZATION}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          inputs: text,
+          parameters: {
+            max_length: 150,
+            min_length: 30
+          }
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`)
+      }
+
+      const data = await response.json()
+      return data[0]?.summary_text || text
+    } catch (error) {
+      console.error('Text summarization error:', error)
+      return text
+    }
+  }
+
+  private static fallbackEnhancement(text: string): string {
+    // Simple fallback enhancement when API is unavailable
+    let enhanced = text
+    
+    // Add line breaks for readability
+    enhanced = enhanced.replace(/\. /g, '.\n\n')
+    
+    // Add engagement elements if missing
+    if (!enhanced.includes('?') && !enhanced.includes('!')) {
+      enhanced += '\n\nWhat do you think?'
+    }
+    
+    return enhanced
+  }
+}
+
+export class AIService {
+  static async improveContent(content: string, platform: string = 'linkedin'): Promise<string> {
+    try {
+      // Create a platform-specific prompt
+      const prompt = this.createPlatformPrompt(content, platform)
+      
+      // Use Hugging Face API for text generation
+      const improved = await HuggingFaceAPI.generateText(prompt, content.length + 100)
+      
+      // Apply platform-specific formatting
+      return this.applyPlatformFormatting(improved, platform)
+    } catch (error) {
+      console.error('Content improvement error:', error)
+      // Fallback to simple enhancement
+      return this.simpleEnhancement(content, platform)
+    }
+  }
+
+  static async generateSuggestions(content: string, platform: string): Promise<AISuggestion[]> {
     const suggestions: AISuggestion[] = []
     
-    // Analyze content length
-    if (content.length < 50) {
-      suggestions.push({
-        id: this.generateId(),
-        type: 'content',
-        suggestion: 'Consider adding more detail to make your post more engaging',
-        confidence: 0.8,
-        applied: false
-      })
+    try {
+      // Analyze sentiment to provide better suggestions
+      const sentiment = await HuggingFaceAPI.analyzeSentiment(content)
+      
+      // Generate hashtag suggestions
+      const hashtagSuggestion = await this.generateHashtagSuggestion(content, platform, sentiment)
+             if (hashtagSuggestion) {
+         suggestions.push({
+           id: this.generateId(),
+           suggestion: hashtagSuggestion,
+           type: 'hashtag',
+           confidence: 0.8,
+           applied: false
+         })
+       }
+      
+      // Generate content improvement suggestions
+      const contentSuggestion = await this.generateContentSuggestion(content, platform, sentiment)
+             if (contentSuggestion) {
+         suggestions.push({
+           id: this.generateId(),
+           suggestion: contentSuggestion,
+           type: 'content',
+           confidence: 0.7,
+           applied: false
+         })
+       }
+      
+             // Generate engagement suggestions
+       const engagementSuggestion = this.generateEngagementSuggestion(sentiment)
+       suggestions.push({
+         id: this.generateId(),
+         suggestion: engagementSuggestion,
+         type: 'engagement',
+         confidence: 0.9,
+         applied: false
+       })
+      
+    } catch (error) {
+      console.error('Suggestion generation error:', error)
+             // Fallback suggestions
+       suggestions.push({
+         id: this.generateId(),
+         suggestion: 'Consider adding relevant hashtags to increase visibility',
+         type: 'hashtag',
+         confidence: 0.6,
+         applied: false
+       })
     }
-
-    if (content.length > 200 && platform === 'twitter') {
-      suggestions.push({
-        id: this.generateId(),
-        type: 'content',
-        suggestion: 'This content is too long for Twitter. Consider breaking it into a thread.',
-        confidence: 0.9,
-        applied: false
-      })
-    }
-
-    // Check for questions
-    if (!content.includes('?')) {
-      suggestions.push({
-        id: this.generateId(),
-        type: 'engagement',
-        suggestion: 'Adding a question can increase engagement by encouraging responses',
-        confidence: 0.7,
-        applied: false
-      })
-    }
-
-    // Check for call-to-action
-    if (!this.hasCallToAction(content)) {
-      suggestions.push({
-        id: this.generateId(),
-        type: 'engagement',
-        suggestion: 'Include a call-to-action like "What do you think?" or "Share your experience"',
-        confidence: 0.8,
-        applied: false
-      })
-    }
-
-    // Suggest hashtags
-    const hashtagSuggestion = this.suggestHashtags(content)
-    if (hashtagSuggestion) {
-      suggestions.push(hashtagSuggestion)
-    }
-
-    // Add timing suggestion
-    suggestions.push({
-      id: this.generateId(),
-      type: 'timing',
-      suggestion: this.TIMING_SUGGESTIONS[Math.floor(Math.random() * this.TIMING_SUGGESTIONS.length)],
-      confidence: 0.6,
-      applied: false
-    })
-
+    
     return suggestions
   }
 
   static async generateHashtags(content: string, count: number = 5): Promise<string[]> {
-    const words = content.toLowerCase().split(/\s+/)
-    const hashtags: string[] = []
-    
-    // Simple keyword extraction
-    const keywords = words.filter(word => 
-      word.length > 3 && 
-      !['the', 'and', 'for', 'with', 'this', 'that', 'have', 'will', 'from', 'they', 'know', 'want', 'been', 'good', 'much', 'some', 'time', 'very', 'when', 'come', 'just', 'into', 'than', 'more', 'other', 'about', 'many', 'then', 'them', 'these', 'people', 'only', 'well', 'also', 'over', 'still', 'take', 'every', 'think', 'here', 'again', 'another', 'around', 'away', 'because', 'before', 'below', 'between', 'during', 'first', 'found', 'great', 'house', 'large', 'might', 'never', 'often', 'place', 'right', 'small', 'sound', 'their', 'there', 'through', 'under', 'until', 'water', 'where', 'while', 'world', 'years'].includes(word)
-    )
-
-    // Add relevant hashtags based on content
-    if (keywords.some(word => ['tech', 'technology', 'coding', 'programming', 'ai', 'software'].includes(word))) {
-      hashtags.push(...this.HASHTAG_SUGGESTIONS.tech.slice(0, 2))
+    try {
+      // Extract key topics from content
+      const topics = this.extractTopics(content)
+      
+      // Generate hashtags based on topics and platform
+      const hashtags = topics.slice(0, count).map(topic => `#${topic.replace(/\s+/g, '')}`)
+      
+      // Add platform-specific hashtags
+      const platformHashtags = this.getPlatformHashtags()
+      hashtags.push(...platformHashtags.slice(0, 2))
+      
+      return hashtags.slice(0, count)
+    } catch (error) {
+      console.error('Hashtag generation error:', error)
+      return ['#content', '#socialmedia', '#post']
     }
-    
-    if (keywords.some(word => ['business', 'entrepreneur', 'startup', 'leadership', 'management'].includes(word))) {
-      hashtags.push(...this.HASHTAG_SUGGESTIONS.business.slice(0, 2))
-    }
-    
-    if (keywords.some(word => ['marketing', 'social', 'content', 'brand', 'growth'].includes(word))) {
-      hashtags.push(...this.HASHTAG_SUGGESTIONS.marketing.slice(0, 2))
-    }
-
-    // Add general hashtags
-    hashtags.push(...this.HASHTAG_SUGGESTIONS.general.slice(0, 2))
-
-    return hashtags.slice(0, count)
   }
 
   static async enhanceContent(content: string): Promise<string> {
+    try {
+      // Use Hugging Face for content enhancement
+      const enhanced = await HuggingFaceAPI.generateText(
+        `Improve this social media post: ${content}`,
+        content.length + 50
+      )
+      return enhanced
+    } catch (error) {
+      console.error('Content enhancement error:', error)
+      return this.fallbackEnhancement(content)
+    }
+  }
+
+  // Private helper methods
+  private static createPlatformPrompt(content: string, platform: string): string {
+    const platformPrompts = {
+      linkedin: `Improve this LinkedIn post to be more professional and engaging: ${content}`,
+      twitter: `Make this Twitter post more concise and engaging (max 280 chars): ${content}`,
+      instagram: `Enhance this Instagram post with emojis and hashtags: ${content}`,
+      youtube: `Improve this YouTube post description: ${content}`,
+      reddit: `Make this Reddit post more engaging and community-focused: ${content}`
+    }
+    
+    return platformPrompts[platform.toLowerCase()] || platformPrompts.linkedin
+  }
+
+  private static applyPlatformFormatting(content: string, platform: string): string {
+    switch (platform.toLowerCase()) {
+      case 'instagram':
+        if (!content.includes('📸') && !content.includes('📷')) {
+          content = '📸 ' + content
+        }
+        break
+      case 'youtube':
+        if (!content.includes('🎥') && !content.includes('📺')) {
+          content = '🎥 ' + content
+        }
+        break
+      case 'twitter':
+        if (content.length > 280) {
+          content = content.substring(0, 277) + '...'
+        }
+        break
+    }
+    
+    return content
+  }
+
+  private static simpleEnhancement(content: string, platform: string): string {
     let enhanced = content
-
-    // Add hashtags if none present
-    if (!content.includes('#')) {
-      const hashtags = await this.generateHashtags(content, 3)
-      enhanced += `\n\n${hashtags.join(' ')}`
+    
+    // Add platform-specific improvements
+    switch (platform.toLowerCase()) {
+      case 'linkedin':
+        if (!enhanced.includes('#')) {
+          enhanced += '\n\n#LinkedIn #Professional #Networking'
+        }
+        break
+      case 'twitter':
+        if (enhanced.length > 280) {
+          enhanced = enhanced.substring(0, 277) + '...'
+        }
+        break
+      case 'instagram':
+        if (!enhanced.includes('📸')) {
+          enhanced = '📸 ' + enhanced
+        }
+        break
     }
-
-    // Add call-to-action if none present
-    if (!this.hasCallToAction(content)) {
-      const ctas = [
-        'What are your thoughts?',
-        'Share your experience below!',
-        'Would love to hear your perspective!',
-        'What do you think?',
-        'Drop a comment if you agree!'
-      ]
-      enhanced += `\n\n${ctas[Math.floor(Math.random() * ctas.length)]}`
-    }
-
+    
     return enhanced
   }
 
-  private static hasCallToAction(content: string): boolean {
-    const ctaKeywords = ['what', 'think', 'thoughts', 'share', 'comment', 'agree', 'disagree', 'experience', 'perspective']
-    return ctaKeywords.some(keyword => content.toLowerCase().includes(keyword))
+  private static async generateHashtagSuggestion(content: string, platform: string, sentiment: string): Promise<string> {
+    const topics = this.extractTopics(content)
+    const platformHashtags = this.getPlatformHashtags()
+    
+    const suggestions = [
+      `Add hashtags like: ${topics.slice(0, 3).map(t => `#${t.replace(/\s+/g, '')}`).join(', ')}`,
+      `Include platform hashtags: ${platformHashtags.slice(0, 2).join(', ')}`,
+      `Consider trending hashtags in your industry`
+    ]
+    
+    return suggestions[Math.floor(Math.random() * suggestions.length)]
   }
 
-  private static suggestHashtags(content: string): AISuggestion | null {
-    const words = content.toLowerCase().split(/\s+/)
+  private static async generateContentSuggestion(content: string, platform: string, sentiment: string): Promise<string> {
+    if (content.length < 50) {
+      return 'Consider adding more details to make your post more engaging'
+    }
     
-    if (words.some(word => ['tech', 'technology', 'coding', 'programming'].includes(word))) {
-      return {
-        id: this.generateId(),
-        type: 'hashtag',
-        suggestion: 'Consider adding tech hashtags like #tech #programming #innovation',
-        confidence: 0.8,
-        applied: false
-      }
+    if (sentiment === 'negative') {
+      return 'Consider making your tone more positive to increase engagement'
     }
-
-    if (words.some(word => ['business', 'entrepreneur', 'startup'].includes(word))) {
-      return {
-        id: this.generateId(),
-        type: 'hashtag',
-        suggestion: 'Consider adding business hashtags like #business #entrepreneur #startup',
-        confidence: 0.8,
-        applied: false
-      }
+    
+    if (!content.includes('?') && !content.includes('!')) {
+      return 'Add a question or call-to-action to encourage engagement'
     }
+    
+    return 'Your content looks good! Consider adding a personal touch or story'
+  }
 
-    return null
+  private static generateEngagementSuggestion(sentiment: string): string {
+    const suggestions = {
+      positive: 'Great positive tone! Consider asking followers to share their experiences',
+      negative: 'Consider balancing with positive elements to maintain engagement',
+      neutral: 'Add emotional elements or questions to increase engagement'
+    }
+    
+    return suggestions[sentiment] || suggestions.neutral
+  }
+
+  private static extractTopics(content: string): string[] {
+    // Simple topic extraction based on common words
+    const words = content.toLowerCase().split(/\s+/)
+    const commonTopics = ['business', 'technology', 'marketing', 'social', 'media', 'content', 'strategy', 'growth', 'innovation']
+    
+    return commonTopics.filter(topic => 
+      words.some(word => word.includes(topic) || topic.includes(word))
+    )
+  }
+
+  private static getPlatformHashtags(): string[] {
+    return ['#socialmedia', '#content', '#marketing', '#digital', '#growth']
+  }
+
+  private static fallbackEnhancement(content: string): string {
+    return content + '\n\nWhat are your thoughts on this?'
   }
 
   private static generateId(): string {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2)
+    return Math.random().toString(36).substr(2, 9)
   }
 }
