@@ -5,7 +5,8 @@ import {
   PencilSquareIcon, 
   CalendarIcon, 
   ChartBarIcon, 
-  Cog6ToothIcon
+  Cog6ToothIcon,
+  BellIcon
 } from '@heroicons/react/24/outline'
 import { 
   HomeIcon as HomeIconSolid, 
@@ -38,12 +39,45 @@ const platforms = [
 ]
 
 export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [showNotifications, setShowNotifications] = useState(false)
+
+  useEffect(() => {
+    // Load notifications
+    const loadNotifications = () => {
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('socialflow_notifications')
+        if (stored) {
+          setNotifications(JSON.parse(stored))
+        }
+      }
+    }
+    loadNotifications()
+  }, [])
+
+  const unreadCount = notifications.filter(n => !n.read).length
+
   return (
     <div className="w-64 bg-white border-r border-gray-100 flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-gray-100">
-        <h1 className="text-xl font-bold text-gray-900">SocialFlow</h1>
-        <p className="text-sm text-gray-500">Manage your social presence</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">SocialFlow</h1>
+            <p className="text-sm text-gray-500">Manage your social presence</p>
+          </div>
+          <button
+            onClick={() => setShowNotifications(!showNotifications)}
+            className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <BellIcon className="w-5 h-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Navigation */}
@@ -89,6 +123,37 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           </div>
         </div>
       </nav>
+
+      {/* Notifications Panel */}
+      {showNotifications && (
+        <div className="border-t border-gray-100 p-4">
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+            Notifications
+          </h3>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {notifications.length > 0 ? (
+              notifications.slice(0, 5).map((notification) => (
+                <div
+                  key={notification.id}
+                  className={`p-2 rounded-lg text-xs ${
+                    notification.read ? 'bg-gray-50 text-gray-600' : 'bg-blue-50 text-blue-900'
+                  }`}
+                >
+                  <div className="font-medium">{notification.title}</div>
+                  <div className="text-gray-500 mt-1">{notification.message}</div>
+                  <div className="text-gray-400 mt-1">
+                    {new Date(notification.timestamp).toLocaleTimeString()}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-xs text-gray-500 text-center py-4">
+                No notifications
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* User Profile */}
       <div className="p-4 border-t border-gray-200">

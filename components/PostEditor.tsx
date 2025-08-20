@@ -17,6 +17,7 @@ import {
 import { Post, Platform, AISuggestion } from '@/lib/types'
 import { savePost, getPlatforms, generateId } from '@/lib/storage'
 import { AIService } from '@/lib/ai'
+import { NotificationService } from '@/lib/notifications'
 import toast from 'react-hot-toast'
 
 const postSchema = z.object({
@@ -130,7 +131,7 @@ export default function PostEditor() {
       savePost(post)
       
       if (post.status === 'scheduled') {
-        toast.success(`Post scheduled for ${post.scheduledFor?.toLocaleString()}`)
+        NotificationService.notifyPostScheduled(post)
       } else {
         toast.success('Post saved as draft!')
       }

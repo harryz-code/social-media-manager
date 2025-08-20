@@ -1,5 +1,6 @@
 import { Post } from './types'
 import { getPosts, savePost } from './storage'
+import { NotificationService } from './notifications'
 
 export class SchedulerService {
   private static checkInterval: NodeJS.Timeout | null = null
@@ -65,8 +66,8 @@ export class SchedulerService {
       // Save updated post
       savePost(updatedPost)
       
-      // Show notification (in a real app, this would be a toast or push notification)
-      this.showPublishNotification(post)
+      // Show notification
+      NotificationService.notifyPostPublished(post)
       
     } catch (error) {
       console.error('Error publishing post:', error)
@@ -78,6 +79,9 @@ export class SchedulerService {
         updatedAt: new Date()
       }
       savePost(failedPost)
+      
+      // Show error notification
+      NotificationService.notifyPostFailed(post, error instanceof Error ? error.message : 'Unknown error')
     }
   }
 
@@ -95,12 +99,7 @@ export class SchedulerService {
     console.log(`Successfully published to ${platform}`)
   }
 
-  private static showPublishNotification(post: Post) {
-    // In a real app, this would show a toast notification
-    console.log(`✅ Post published successfully!`)
-    console.log(`Platforms: ${post.platforms.join(', ')}`)
-    console.log(`Content: ${post.content.substring(0, 100)}...`)
-  }
+  // Remove the old notification method since we're using NotificationService now
 
   static getNextScheduledPost(): Post | null {
     const posts = getPosts()
