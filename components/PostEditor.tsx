@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -14,7 +14,9 @@ import {
   EyeSlashIcon,
   CheckIcon
 } from '@heroicons/react/24/outline'
-// Platform icons will be handled with emojis
+import { Post, Platform, AISuggestion } from '@/lib/types'
+import { savePost, getPlatforms, generateId } from '@/lib/storage'
+import { AIService } from '@/lib/ai'
 import toast from 'react-hot-toast'
 
 const postSchema = z.object({
@@ -26,26 +28,25 @@ const postSchema = z.object({
 
 type PostFormData = z.infer<typeof postSchema>
 
-const platforms = [
-  { id: 'linkedin', name: 'LinkedIn', icon: '💼', color: 'text-linkedin' },
-  { id: 'instagram', name: 'Instagram', icon: '📷', color: 'text-instagram' },
-  { id: 'youtube', name: 'YouTube', icon: '📺', color: 'text-youtube' },
-  { id: 'reddit', name: 'Reddit', icon: '🤖', color: 'text-reddit' },
-]
+// Load platforms on component mount
+useEffect(() => {
+  const loadPlatforms = () => {
+    const storedPlatforms = getPlatforms()
+    setPlatforms(storedPlatforms)
+  }
+  loadPlatforms()
+}, [])
 
-const aiSuggestions = [
-  "Add more specific details to make this more engaging",
-  "Consider using a question to encourage interaction",
-  "Include a call-to-action to drive engagement",
-  "This could benefit from industry-specific hashtags",
-  "Try breaking this into shorter sentences for better readability"
-]
+// Remove the static aiSuggestions array since we'll use dynamic ones
 
 export default function PostEditor() {
   const [isImproving, setIsImproving] = useState(false)
   const [improvedContent, setImprovedContent] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([])
+  const [platforms, setPlatforms] = useState<Platform[]>([])
+  const [aiSuggestions, setAiSuggestions] = useState<AISuggestion[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
   const {
     register,
@@ -87,24 +88,53 @@ export default function PostEditor() {
 
     setIsImproving(true)
     
-    // Simulate AI improvement
-    setTimeout(() => {
-      const improved = content + "\n\n💡 Pro tip: Consider adding relevant hashtags and a call-to-action to boost engagement!"
-      setImprovedContent(improved)
+    try {
+      // Get AI suggestions for the first selected platform
+      const platform = selectedPlatforms[0] || 'linkedin'
+      const suggestions = await AIService.improveContent(content, platform)
+      setAiSuggestions(suggestions)
+      
+      // Enhance content with AI
+      const enhanced = await AIService.enhanceContent(content)
+      setImprovedContent(enhanced)
+      
+      toast.success('Content improved with AI!')
+    } catch (error) {
+      toast.error('Failed to improve content')
+      console.error('AI improvement error:', error)
+    } finally {
       setIsImproving(false)
-      toast.success('Content improved!')
-    }, 2000)
+    }
   }
 
   const onSubmit = async (data: PostFormData) => {
+    setIsLoading(true)
+    
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
+      // Create post object
+      const post: Post = {
+        id: generateId(),
+        content: improvedContent || data.content,
+        platforms: selectedPlatforms,
+        status: data.scheduledDate && data.scheduledTime ? 'scheduled' : 'draft',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        hashtags: await AIService.generateHashtags(data.content, 5)
+      }
+
+      // Set scheduled time if provided
       if (data.scheduledDate && data.scheduledTime) {
-        toast.success('Post scheduled successfully!')
+        const scheduledDateTime = new Date(`${data.scheduledDate}T${data.scheduledTime}`)
+        post.scheduledFor = scheduledDateTime
+      }
+
+      // Save post to storage
+      savePost(post)
+      
+      if (post.status === 'scheduled') {
+        toast.success(`Post scheduled for ${post.scheduledFor?.toLocaleString()}`)
       } else {
-        toast.success('Post published successfully!')
+        toast.success('Post saved as draft!')
       }
       
       // Reset form
@@ -114,8 +144,12 @@ export default function PostEditor() {
       setValue('scheduledTime', '')
       setSelectedPlatforms([])
       setImprovedContent('')
+      setAiSuggestions([])
     } catch (error) {
-      toast.error('Failed to publish post')
+      toast.error('Failed to save post')
+      console.error('Save post error:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -283,10 +317,10 @@ export default function PostEditor() {
           </button>
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isLoading}
             className="btn-primary"
           >
-            {isSubmitting ? 'Publishing...' : 'Publish Post'}
+            {isSubmitting || isLoading ? 'Saving...' : 'Save Post'}
           </button>
         </div>
       </form>
@@ -327,14 +361,29 @@ export default function PostEditor() {
           </div>
 
           {/* AI Suggestions */}
-          {showSuggestions && (
+          {showSuggestions && aiSuggestions.length > 0 && (
             <div className="card">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">AI Suggestions</h3>
               <div className="space-y-3">
-                {aiSuggestions.map((suggestion, index) => (
-                  <div key={index} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                {aiSuggestions.map((suggestion) => (
+                  <div key={suggestion.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-sm text-gray-700">{suggestion}</p>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-700">{suggestion.suggestion}</p>
+                      <div className="flex items-center mt-2 space-x-2">
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          suggestion.type === 'hashtag' ? 'bg-purple-100 text-purple-700' :
+                          suggestion.type === 'content' ? 'bg-blue-100 text-blue-700' :
+                          suggestion.type === 'timing' ? 'bg-green-100 text-green-700' :
+                          'bg-orange-100 text-orange-700'
+                        }`}>
+                          {suggestion.type}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {Math.round(suggestion.confidence * 100)}% confidence
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
