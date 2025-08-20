@@ -18,6 +18,7 @@ import { Post, Platform, AISuggestion } from '@/lib/types'
 import { savePost, getPlatforms, generateId } from '@/lib/storage'
 import { AIService } from '@/lib/ai'
 import { NotificationService } from '@/lib/notifications'
+import TemplateSelector from '@/components/TemplateSelector'
 import toast from 'react-hot-toast'
 
 const postSchema = z.object({
@@ -37,6 +38,11 @@ export default function PostEditor() {
   const [platforms, setPlatforms] = useState<Platform[]>([])
   const [aiSuggestions, setAiSuggestions] = useState<AISuggestion[]>([])
   const [isLoading, setIsLoading] = useState(false)
+
+  const handleTemplateSelect = (content: string) => {
+    setValue('content', content)
+    toast.success('Template applied!')
+  }
 
   // Load platforms on component mount
   useEffect(() => {
@@ -157,7 +163,7 @@ export default function PostEditor() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Compose</h1>
-        <p className="text-gray-600">Create and schedule your content</p>
+        <p className="text-gray-600">Create and schedule your content with AI assistance</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -197,6 +203,10 @@ export default function PostEditor() {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Content</h2>
             <div className="flex items-center space-x-2">
+              <TemplateSelector 
+                onTemplateSelect={handleTemplateSelect}
+                selectedPlatforms={selectedPlatforms}
+              />
               <button
                 type="button"
                 onClick={improveContent}

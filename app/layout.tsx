@@ -7,8 +7,8 @@ import SchedulerProvider from '@/components/SchedulerProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Social Media Manager - Typefully Replica',
-  description: 'Manage and schedule posts across multiple social media platforms',
+  title: 'Post Genius - AI-Powered Social Media Manager',
+  description: 'Create, schedule, and optimize your social media posts with AI',
 }
 
 export default function RootLayout({

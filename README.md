@@ -1,12 +1,12 @@
-# SocialFlow - Social Media Manager
+# Post Genius - AI-Powered Social Media Manager
 
-A comprehensive social media management platform built with Next.js, TypeScript, and Tailwind CSS. This is a Typefully-inspired application that helps you manage and schedule posts across multiple social media platforms.
+A comprehensive social media management platform built with Next.js, TypeScript, and Tailwind CSS. Post Genius combines the best of Typefully with advanced AI capabilities to help you create, schedule, and optimize posts across multiple social media platforms.
 
 ## Features
 
 ### 🚀 Core Features
 - **Multi-Platform Management**: Support for LinkedIn, Instagram, YouTube, Reddit, and more
-- **AI-Powered Content Improvement**: Get suggestions to enhance your posts
+- **AI-Powered Content Improvement**: Get intelligent suggestions to enhance your posts
 - **Smart Scheduling**: Schedule posts across multiple platforms with ease
 - **Content Calendar**: Visual calendar interface for planning your content
 - **Analytics Dashboard**: Track performance and engagement metrics
@@ -160,7 +160,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-For support, email support@socialflow.com or create an issue in this repository.
+For support, email support@postgenius.com or create an issue in this repository.
 
 ---
 

@@ -47,7 +47,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
     // Load notifications
     const loadNotifications = () => {
       if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem('socialflow_notifications')
+        const stored = localStorage.getItem('postgenius_notifications')
         if (stored) {
           setNotifications(JSON.parse(stored))
         }
@@ -64,8 +64,8 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">SocialFlow</h1>
-            <p className="text-sm text-gray-500">Manage your social presence</p>
+            <h1 className="text-xl font-bold text-gray-900">Post Genius</h1>
+            <p className="text-sm text-gray-500">AI-powered social media management</p>
           </div>
           <button
             onClick={() => setShowNotifications(!showNotifications)}

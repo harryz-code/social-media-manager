@@ -1,7 +1,7 @@
 {
-  "name": "social-media-manager",
+  "name": "post-genius",
   "version": "1.0.0",
-  "description": "A comprehensive social media management platform for multiple platforms",
+  "description": "AI-powered social media management platform for creating and scheduling posts",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
@@ -41,8 +41,10 @@
     "social-media",
     "content-management",
     "scheduling",
-    "multi-platform"
+    "multi-platform",
+    "ai",
+    "post-genius"
   ],
-  "author": "Your Name",
+  "author": "Post Genius Team",
   "license": "MIT"
 }

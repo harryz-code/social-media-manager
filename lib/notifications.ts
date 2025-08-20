@@ -127,14 +127,14 @@ export class NotificationService {
   // Private methods
   private static saveNotifications() {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('socialflow_notifications', JSON.stringify(this.notifications))
+      localStorage.setItem('postgenius_notifications', JSON.stringify(this.notifications))
     }
   }
 
   private static loadNotifications() {
     if (typeof window !== 'undefined') {
       try {
-        const stored = localStorage.getItem('socialflow_notifications')
+        const stored = localStorage.getItem('postgenius_notifications')
         if (stored) {
           this.notifications = JSON.parse(stored).map((n: any) => ({
             ...n,

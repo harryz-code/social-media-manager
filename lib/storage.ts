@@ -2,11 +2,11 @@ import { Post, Platform, User, Analytics } from './types'
 
 // Local Storage Keys
 const STORAGE_KEYS = {
-  POSTS: 'socialflow_posts',
-  PLATFORMS: 'socialflow_platforms',
-  USER: 'socialflow_user',
-  ANALYTICS: 'socialflow_analytics',
-  SETTINGS: 'socialflow_settings'
+  POSTS: 'postgenius_posts',
+  PLATFORMS: 'postgenius_platforms',
+  USER: 'postgenius_user',
+  ANALYTICS: 'postgenius_analytics',
+  SETTINGS: 'postgenius_settings'
 } as const
 
 // Generic storage functions
