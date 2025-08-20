@@ -28,17 +28,6 @@ const postSchema = z.object({
 
 type PostFormData = z.infer<typeof postSchema>
 
-// Load platforms on component mount
-useEffect(() => {
-  const loadPlatforms = () => {
-    const storedPlatforms = getPlatforms()
-    setPlatforms(storedPlatforms)
-  }
-  loadPlatforms()
-}, [])
-
-// Remove the static aiSuggestions array since we'll use dynamic ones
-
 export default function PostEditor() {
   const [isImproving, setIsImproving] = useState(false)
   const [improvedContent, setImprovedContent] = useState('')
@@ -47,6 +36,15 @@ export default function PostEditor() {
   const [platforms, setPlatforms] = useState<Platform[]>([])
   const [aiSuggestions, setAiSuggestions] = useState<AISuggestion[]>([])
   const [isLoading, setIsLoading] = useState(false)
+
+  // Load platforms on component mount
+  useEffect(() => {
+    const loadPlatforms = () => {
+      const storedPlatforms = getPlatforms()
+      setPlatforms(storedPlatforms)
+    }
+    loadPlatforms()
+  }, [])
 
   const {
     register,
@@ -266,7 +264,7 @@ export default function PostEditor() {
                 {aiSuggestions.map((suggestion, index) => (
                   <li key={index} className="text-sm text-blue-800 flex items-start">
                     <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                    {suggestion}
+                    {suggestion.suggestion}
                   </li>
                 ))}
               </ul>
