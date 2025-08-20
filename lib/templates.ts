@@ -144,7 +144,8 @@ export class TemplateService {
   }
 
   static getTemplateCategories(): string[] {
-    return [...new Set(contentTemplates.map(template => template.category))]
+    const categories = contentTemplates.map(template => template.category)
+    return Array.from(new Set(categories))
   }
 
   static getTemplatesForPlatform(platform: string): ContentTemplate[] {

@@ -312,7 +312,7 @@ export default function TodoManager() {
                 <p className="text-gray-600 mb-3">{todo.description}</p>
                 
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  {todo.estimatedHours > 0 && (
+                  {todo.estimatedHours && todo.estimatedHours > 0 && (
                     <span>Est: {todo.estimatedHours}h</span>
                   )}
                   {todo.actualHours && todo.actualHours > 0 && (

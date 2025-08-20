@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import SchedulerProvider from '@/components/SchedulerProvider'
+import DataInitializer from '@/components/DataInitializer'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,6 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <SchedulerProvider>
+          <DataInitializer />
           {children}
           <Toaster position="top-right" />
         </SchedulerProvider>

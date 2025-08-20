@@ -22,7 +22,11 @@ const quickActions = [
   { name: 'View Analytics', icon: ChartBarIcon, color: 'bg-purple-500' },
 ]
 
-export default function Dashboard() {
+interface DashboardProps {
+  onNavigate?: (tab: 'dashboard' | 'compose' | 'calendar' | 'bulk' | 'analytics' | 'settings' | 'todos') => void
+}
+
+export default function Dashboard({ onNavigate }: DashboardProps) {
   const [selectedAction, setSelectedAction] = useState<string | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
@@ -78,7 +82,10 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-600">Welcome back! Here's what's happening with your social media posts.</p>
         </div>
-        <button className="btn-primary flex items-center">
+        <button 
+          className="btn-primary flex items-center"
+          onClick={() => onNavigate?.('compose')}
+        >
           <PlusIcon className="w-5 h-5 mr-2" />
           New Post
         </button>
@@ -110,7 +117,12 @@ export default function Dashboard() {
           {quickActions.map((action) => (
             <button
               key={action.name}
-              onClick={() => setSelectedAction(action.name)}
+              onClick={() => {
+                setSelectedAction(action.name)
+                if (action.name === 'Create Post') onNavigate?.('compose')
+                if (action.name === 'Schedule Content') onNavigate?.('calendar')
+                if (action.name === 'View Analytics') onNavigate?.('analytics')
+              }}
               className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
             >
               <div className={`w-10 h-10 ${action.color} rounded-lg flex items-center justify-center mr-3`}>

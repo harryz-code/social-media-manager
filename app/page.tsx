@@ -18,7 +18,7 @@ export default function Home() {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard />
+        return <Dashboard onNavigate={setActiveTab} />
       case 'compose':
         return <PostEditor />
       case 'calendar':
@@ -32,7 +32,7 @@ export default function Home() {
       case 'todos':
         return <TodoManager />
       default:
-        return <Dashboard />
+        return <Dashboard onNavigate={setActiveTab} />
     }
   }
 

@@ -237,7 +237,7 @@ export class AIService {
 
   // Private helper methods
   private static createPlatformPrompt(content: string, platform: string): string {
-    const platformPrompts = {
+    const platformPrompts: Record<string, string> = {
       linkedin: `Improve this LinkedIn post to be more professional and engaging: ${content}`,
       twitter: `Make this Twitter post more concise and engaging (max 280 chars): ${content}`,
       instagram: `Enhance this Instagram post with emojis and hashtags: ${content}`,
@@ -325,7 +325,7 @@ export class AIService {
   }
 
   private static generateEngagementSuggestion(sentiment: string): string {
-    const suggestions = {
+    const suggestions: Record<string, string> = {
       positive: 'Great positive tone! Consider asking followers to share their experiences',
       negative: 'Consider balancing with positive elements to maintain engagement',
       neutral: 'Add emotional elements or questions to increase engagement'
