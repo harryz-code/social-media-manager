@@ -7,17 +7,19 @@ import {
   CalendarIcon, 
   ChartBarIcon, 
   Cog6ToothIcon,
-  BellIcon
+  BellIcon,
+  CheckCircleIcon
 } from '@heroicons/react/24/outline'
 import { 
   HomeIcon as HomeIconSolid, 
   PencilSquareIcon as PencilSquareIconSolid, 
   CalendarIcon as CalendarIconSolid, 
   ChartBarIcon as ChartBarIconSolid, 
-  Cog6ToothIcon as Cog6ToothIconSolid 
+  Cog6ToothIcon as Cog6ToothIconSolid,
+  CheckCircleIcon as CheckCircleIconSolid
 } from '@heroicons/react/24/solid'
 
-type ActiveTab = 'dashboard' | 'compose' | 'calendar' | 'analytics' | 'settings'
+type ActiveTab = 'dashboard' | 'compose' | 'calendar' | 'analytics' | 'settings' | 'todos'
 
 interface SidebarProps {
   activeTab: ActiveTab
@@ -29,6 +31,7 @@ const navigation = [
   { name: 'Compose', tab: 'compose', icon: PencilSquareIcon, activeIcon: PencilSquareIconSolid },
   { name: 'Calendar', tab: 'calendar', icon: CalendarIcon, activeIcon: CalendarIconSolid },
   { name: 'Analytics', tab: 'analytics', icon: ChartBarIcon, activeIcon: ChartBarIconSolid },
+  { name: 'To-Dos', tab: 'todos', icon: CheckCircleIcon, activeIcon: CheckCircleIconSolid },
   { name: 'Settings', tab: 'settings', icon: Cog6ToothIcon, activeIcon: Cog6ToothIconSolid },
 ]
 

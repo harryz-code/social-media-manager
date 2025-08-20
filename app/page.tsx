@@ -7,8 +7,9 @@ import PostEditor from '@/components/PostEditor'
 import Calendar from '@/components/Calendar'
 import Analytics from '@/components/Analytics'
 import Settings from '@/components/Settings'
+import TodoManager from '@/components/TodoManager'
 
-type ActiveTab = 'dashboard' | 'compose' | 'calendar' | 'analytics' | 'settings'
+type ActiveTab = 'dashboard' | 'compose' | 'calendar' | 'analytics' | 'settings' | 'todos'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard')
@@ -25,6 +26,8 @@ export default function Home() {
         return <Analytics />
       case 'settings':
         return <Settings />
+      case 'todos':
+        return <TodoManager />
       default:
         return <Dashboard />
     }
