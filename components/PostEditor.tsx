@@ -23,6 +23,7 @@ import { CollaborationService } from '@/lib/collaboration'
 import { PlatformService } from '@/lib/api/platformService'
 import TemplateSelector from '@/components/TemplateSelector'
 import CollaborationPanel from '@/components/CollaborationPanel'
+import PlatformIcon from '@/components/PlatformIcon'
 import toast from 'react-hot-toast'
 
 const postSchema = z.object({
@@ -187,22 +188,22 @@ export default function PostEditor() {
         {/* Platform Selection */}
         <div className="card">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Select Platforms</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {platforms.map((platform) => (
               <button
                 key={platform.id}
                 type="button"
                 onClick={() => handlePlatformToggle(platform.id)}
-                className={`flex items-center justify-center p-4 border-2 rounded-lg transition-all duration-200 ${
+                className={`flex items-center justify-center p-3 border-2 rounded-lg transition-all duration-200 ${
                   selectedPlatforms.includes(platform.id)
                     ? 'border-primary-500 bg-primary-50'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <span className={`text-xl ${platform.color} mr-2`}>{platform.icon}</span>
-                <span className="font-medium text-gray-900">{platform.name}</span>
+                <PlatformIcon platform={platform.id} size="sm" className="mr-2" />
+                <span className="font-medium text-gray-900 text-sm">{platform.name}</span>
                 {selectedPlatforms.includes(platform.id) && (
-                  <CheckIcon className="w-5 h-5 text-primary-600 ml-2" />
+                  <CheckIcon className="w-5 h-5 text-primary-600 ml-auto" />
                 )}
               </button>
             ))}
@@ -214,9 +215,9 @@ export default function PostEditor() {
 
         {/* Content Editor */}
         <div className="card">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Content</h2>
-            <div className="flex items-center space-x-2">
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">Content</h2>
+            <div className="flex flex-wrap items-center gap-2 mb-4">
               <TemplateSelector 
                 onTemplateSelect={handleTemplateSelect}
                 selectedPlatforms={selectedPlatforms}
@@ -225,7 +226,7 @@ export default function PostEditor() {
                 type="button"
                 onClick={improveContent}
                 disabled={isImproving || !content.trim()}
-                className="flex items-center px-3 py-1.5 text-sm font-medium text-primary-600 hover:text-primary-700 disabled:opacity-50"
+                className="flex items-center px-3 py-1.5 text-sm font-medium text-primary-600 hover:text-primary-700 disabled:opacity-50 bg-primary-50 rounded-lg"
               >
                 <SparklesIcon className="w-4 h-4 mr-1" />
                 {isImproving ? 'Improving...' : 'Improve with AI'}
@@ -233,7 +234,7 @@ export default function PostEditor() {
               <button
                 type="button"
                 onClick={() => setShowSuggestions(!showSuggestions)}
-                className="flex items-center px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-700"
+                className="flex items-center px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-700 bg-gray-50 rounded-lg"
               >
                 <EyeIcon className="w-4 h-4 mr-1" />
                 Suggestions
@@ -241,7 +242,7 @@ export default function PostEditor() {
               <button
                 type="button"
                 onClick={handleCollaboration}
-                className="flex items-center px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-700"
+                className="flex items-center px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-700 bg-gray-50 rounded-lg"
               >
                 <UserGroupIcon className="w-4 h-4 mr-1" />
                 Collaborate

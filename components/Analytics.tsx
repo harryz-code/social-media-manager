@@ -27,12 +27,66 @@ const platformStats = [
     changeType: 'positive'
   },
   {
+    platform: 'Reddit',
+    followers: '1.8k',
+    posts: 12,
+    engagement: '8.5%',
+    reach: '8.9k',
+    change: '+15%',
+    changeType: 'positive'
+  },
+  {
+    platform: 'Threads',
+    followers: '5.2k',
+    posts: 15,
+    engagement: '6.1%',
+    reach: '18.3k',
+    change: '+22%',
+    changeType: 'positive'
+  },
+  {
+    platform: 'Facebook',
+    followers: '9.7k',
+    posts: 20,
+    engagement: '5.3%',
+    reach: '28.1k',
+    change: '+7%',
+    changeType: 'positive'
+  },
+  {
+    platform: 'X (Twitter)',
+    followers: '6.8k',
+    posts: 16,
+    engagement: '7.2%',
+    reach: '22.4k',
+    change: '+18%',
+    changeType: 'positive'
+  },
+  {
+    platform: 'Weibo',
+    followers: '2.1k',
+    posts: 8,
+    engagement: '9.1%',
+    reach: '12.7k',
+    change: '+25%',
+    changeType: 'positive'
+  },
+  {
     platform: 'Instagram',
     followers: '8.9k',
     posts: 18,
     engagement: '6.8%',
     reach: '32.1k',
     change: '+8%',
+    changeType: 'positive'
+  },
+  {
+    platform: 'TikTok',
+    followers: '4.3k',
+    posts: 10,
+    engagement: '11.2%',
+    reach: '19.8k',
+    change: '+31%',
     changeType: 'positive'
   },
   {
@@ -43,15 +97,6 @@ const platformStats = [
     reach: '15.8k',
     change: '-3%',
     changeType: 'negative'
-  },
-  {
-    platform: 'Reddit',
-    followers: '1.8k',
-    posts: 12,
-    engagement: '8.5%',
-    reach: '8.9k',
-    change: '+15%',
-    changeType: 'positive'
   }
 ]
 

@@ -17,6 +17,7 @@ const platformEmojis: Record<string, string> = {
   twitter: '🐦',
   x: '🐦',
   weibo: '📱',
+  rednote: '📖',
   instagram: '📷',
   tiktok: '🎵',
   youtube: '📺'

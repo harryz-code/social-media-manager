@@ -113,6 +113,14 @@ export const getPlatforms = (): Platform[] => {
       connected: false,
       type: 'text'
     },
+    {
+      id: 'rednote',
+      name: 'RedNote (Xiaohongshu)',
+      icon: '/icons/rednote.png',
+      color: 'text-rednote',
+      connected: false,
+      type: 'visual'
+    },
     // Visual/Video Platforms
     {
       id: 'instagram',

@@ -28,8 +28,9 @@ module.exports = {
         reddit: '#ff4500',
         threads: '#8b5cf6',
         facebook: '#1877f2',
-        weibo: '#e6162d',
-        x: '#000000',
+            weibo: '#e6162d',
+    x: '#000000',
+    rednote: '#ff2442',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

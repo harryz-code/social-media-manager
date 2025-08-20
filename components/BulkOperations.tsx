@@ -17,6 +17,7 @@ import { Post, Platform } from '@/lib/types'
 import { getPosts, savePost, getPlatforms, generateId } from '@/lib/storage'
 import { AIService } from '@/lib/ai'
 import { NotificationService } from '@/lib/notifications'
+import PlatformIcon from '@/components/PlatformIcon'
 import { format, addDays, addWeeks, addMonths } from 'date-fns'
 import toast from 'react-hot-toast'
 
@@ -221,7 +222,7 @@ export default function BulkOperations() {
           {/* Platforms */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Platforms</label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {platforms.map((platform) => (
                 <button
                   key={platform.id}
@@ -233,7 +234,7 @@ export default function BulkOperations() {
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <span className={`text-xl ${platform.color} mr-2`}>{platform.icon}</span>
+                  <PlatformIcon platform={platform.id} size="sm" className="mr-2" />
                   <span className="text-sm font-medium">{platform.name}</span>
                 </button>
               ))}
