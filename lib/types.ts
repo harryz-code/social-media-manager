@@ -23,6 +23,7 @@ export interface Platform {
   icon: string
   color: string
   connected: boolean
+  type: 'text' | 'visual' | 'video'
   followers?: string
   apiKey?: string
   accessToken?: string

@@ -38,11 +38,18 @@ const navigation = [
   { name: 'Settings', tab: 'settings', icon: Cog6ToothIcon, activeIcon: Cog6ToothIconSolid },
 ]
 
+import PlatformIcon from './PlatformIcon'
+
 const platforms = [
-  { name: 'LinkedIn', icon: '💼', color: 'text-linkedin' },
-  { name: 'Reddit', icon: '🤖', color: 'text-reddit' },
-  { name: 'Threads', icon: '🧵', color: 'text-threads' },
-  { name: 'Twitter', icon: '🐦', color: 'text-twitter' },
+  { id: 'linkedin', name: 'LinkedIn', color: 'text-linkedin' },
+  { id: 'reddit', name: 'Reddit', color: 'text-reddit' },
+  { id: 'threads', name: 'Threads', color: 'text-threads' },
+  { id: 'facebook', name: 'Facebook', color: 'text-facebook' },
+  { id: 'x', name: 'X (Twitter)', color: 'text-twitter' },
+  { id: 'weibo', name: 'Weibo', color: 'text-weibo' },
+  { id: 'instagram', name: 'Instagram', color: 'text-instagram' },
+  { id: 'tiktok', name: 'TikTok', color: 'text-tiktok' },
+  { id: 'youtube', name: 'YouTube', color: 'text-youtube' },
 ]
 
 export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
@@ -119,10 +126,10 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           <div className="space-y-2">
             {platforms.map((platform) => (
               <div
-                key={platform.name}
+                key={platform.id}
                 className="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50"
               >
-                <span className={`text-lg mr-3 ${platform.color}`}>{platform.icon}</span>
+                <PlatformIcon platform={platform.id} size="sm" className="mr-3" />
                 {platform.name}
                 <div className="ml-auto w-2 h-2 bg-green-500 rounded-full"></div>
               </div>

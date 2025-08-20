@@ -5,6 +5,14 @@ export interface Collaborator {
   avatar?: string
   role: 'viewer' | 'editor' | 'admin'
   joinedAt: Date
+  permissions: {
+    canView: boolean
+    canEdit: boolean
+    canPublish: boolean
+    canInvite: boolean
+    canDelete: boolean
+    canManageCollaborators: boolean
+  }
 }
 
 export interface CollaborationInvite {
@@ -48,16 +56,51 @@ export class CollaborationService {
   }
 
   // Collaborator Management
-  static addCollaborator(postId: string, collaborator: Omit<Collaborator, 'id' | 'joinedAt'>): void {
+  static addCollaborator(postId: string, collaborator: Omit<Collaborator, 'id' | 'joinedAt' | 'permissions'>): void {
     const collaborators = this.getCollaborators(postId)
+    const permissions = this.getDefaultPermissions(collaborator.role)
+    
     const newCollaborator: Collaborator = {
       ...collaborator,
       id: this.generateId(),
-      joinedAt: new Date()
+      joinedAt: new Date(),
+      permissions
     }
     
     collaborators.push(newCollaborator)
     this.saveCollaborators(postId, collaborators)
+  }
+
+  private static getDefaultPermissions(role: 'viewer' | 'editor' | 'admin'): Collaborator['permissions'] {
+    switch (role) {
+      case 'admin':
+        return {
+          canView: true,
+          canEdit: true,
+          canPublish: true,
+          canInvite: true,
+          canDelete: true,
+          canManageCollaborators: true
+        }
+      case 'editor':
+        return {
+          canView: true,
+          canEdit: true,
+          canPublish: true,
+          canInvite: false,
+          canDelete: false,
+          canManageCollaborators: false
+        }
+      case 'viewer':
+        return {
+          canView: true,
+          canEdit: false,
+          canPublish: false,
+          canInvite: false,
+          canDelete: false,
+          canManageCollaborators: false
+        }
+    }
   }
 
   static removeCollaborator(postId: string, collaboratorId: string): void {

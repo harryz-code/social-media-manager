@@ -61,36 +61,82 @@ export const getPostById = (postId: string): Post | undefined => {
   return posts.find(p => p.id === postId)
 }
 
-// Platforms storage - Focus on text-based platforms
+// Platforms storage - Full Social Media Manager
 export const getPlatforms = (): Platform[] => {
   return getFromStorage(STORAGE_KEYS.PLATFORMS, [
+    // Text-Based Platforms
     {
       id: 'linkedin',
       name: 'LinkedIn',
-      icon: '💼',
+      icon: '/icons/linkedin.png',
       color: 'text-linkedin',
-      connected: false
+      connected: false,
+      type: 'text'
     },
     {
       id: 'reddit',
       name: 'Reddit',
-      icon: '🤖',
+      icon: '/icons/reddit.png',
       color: 'text-reddit',
-      connected: false
+      connected: false,
+      type: 'text'
     },
     {
       id: 'threads',
       name: 'Threads',
-      icon: '🧵',
+      icon: '/icons/threads.png',
       color: 'text-threads',
-      connected: false
+      connected: false,
+      type: 'text'
+    },
+    {
+      id: 'facebook',
+      name: 'Facebook',
+      icon: '/icons/facebook.png',
+      color: 'text-facebook',
+      connected: false,
+      type: 'text'
     },
     {
       id: 'twitter',
-      name: 'Twitter',
-      icon: '🐦',
+      name: 'X (Twitter)',
+      icon: '/icons/x.png',
       color: 'text-twitter',
-      connected: false
+      connected: false,
+      type: 'text'
+    },
+    {
+      id: 'weibo',
+      name: 'Weibo',
+      icon: '/icons/weibo.png',
+      color: 'text-weibo',
+      connected: false,
+      type: 'text'
+    },
+    // Visual/Video Platforms
+    {
+      id: 'instagram',
+      name: 'Instagram',
+      icon: '/icons/instagram.png',
+      color: 'text-instagram',
+      connected: false,
+      type: 'visual'
+    },
+    {
+      id: 'tiktok',
+      name: 'TikTok',
+      icon: '/icons/tiktok.png',
+      color: 'text-tiktok',
+      connected: false,
+      type: 'visual'
+    },
+    {
+      id: 'youtube',
+      name: 'YouTube',
+      icon: '/icons/youtube.png',
+      color: 'text-youtube',
+      connected: false,
+      type: 'video'
     }
   ])
 }

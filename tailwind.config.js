@@ -27,6 +27,9 @@ module.exports = {
         tiktok: '#000000',
         reddit: '#ff4500',
         threads: '#8b5cf6',
+        facebook: '#1877f2',
+        weibo: '#e6162d',
+        x: '#000000',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

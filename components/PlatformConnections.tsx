@@ -103,6 +103,14 @@ export default function PlatformConnections() {
       color: 'border-purple-200 hover:border-purple-300'
     },
     {
+      id: 'facebook',
+      name: 'Facebook',
+      icon: '📘',
+      description: 'Social networking and community building',
+      features: ['Text posts', 'Community engagement', 'Personal & business pages'],
+      color: 'border-blue-200 hover:border-blue-300'
+    },
+    {
       id: 'twitter',
       name: 'Twitter',
       icon: '🐦',
