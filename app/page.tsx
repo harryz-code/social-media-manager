@@ -4,12 +4,13 @@ import { useState } from 'react'
 import Sidebar from '@/components/Sidebar'
 import Dashboard from '@/components/Dashboard'
 import PostEditor from '@/components/PostEditor'
-import Calendar from '@/components/Calendar'
+import ContentCalendar from '@/components/ContentCalendar'
+import BulkOperations from '@/components/BulkOperations'
 import Analytics from '@/components/Analytics'
 import Settings from '@/components/Settings'
 import TodoManager from '@/components/TodoManager'
 
-type ActiveTab = 'dashboard' | 'compose' | 'calendar' | 'analytics' | 'settings' | 'todos'
+type ActiveTab = 'dashboard' | 'compose' | 'calendar' | 'bulk' | 'analytics' | 'settings' | 'todos'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard')
@@ -21,7 +22,9 @@ export default function Home() {
       case 'compose':
         return <PostEditor />
       case 'calendar':
-        return <Calendar />
+        return <ContentCalendar />
+      case 'bulk':
+        return <BulkOperations />
       case 'analytics':
         return <Analytics />
       case 'settings':

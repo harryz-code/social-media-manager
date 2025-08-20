@@ -82,20 +82,22 @@ export const initialTodos: Omit<Todo, 'id' | 'createdAt' | 'updatedAt'>[] = [
     description: 'Create a visual content calendar with drag-and-drop functionality for scheduling posts. Include monthly/weekly views, color coding by platform, and easy rescheduling.',
     category: 'feature',
     priority: 'high',
-    status: 'todo',
+    status: 'done',
     estimatedHours: 16,
+    actualHours: 8,
     tags: ['ui-ux', 'calendar', 'scheduling'],
-    notes: 'Consider using a library like react-big-calendar or fullcalendar'
+    notes: '✅ Completed! Implemented drag-and-drop calendar with visual post management, platform color coding, and event details modal.'
   },
   {
     title: 'Bulk Operations - Schedule multiple posts',
     description: 'Allow users to create and schedule multiple posts at once. Include bulk editing, bulk scheduling, and bulk publishing capabilities.',
     category: 'feature',
     priority: 'high',
-    status: 'todo',
+    status: 'done',
     estimatedHours: 12,
+    actualHours: 6,
     tags: ['bulk', 'scheduling', 'productivity'],
-    notes: 'Need to design bulk selection interface and batch processing'
+    notes: '✅ Completed! Implemented AI-powered bulk post generation with scheduling strategies, bulk selection, and batch operations.'
   },
   {
     title: 'Real Platform Integrations',

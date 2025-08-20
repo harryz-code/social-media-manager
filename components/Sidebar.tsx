@@ -8,7 +8,8 @@ import {
   ChartBarIcon, 
   Cog6ToothIcon,
   BellIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  Squares2X2Icon
 } from '@heroicons/react/24/outline'
 import { 
   HomeIcon as HomeIconSolid, 
@@ -16,10 +17,11 @@ import {
   CalendarIcon as CalendarIconSolid, 
   ChartBarIcon as ChartBarIconSolid, 
   Cog6ToothIcon as Cog6ToothIconSolid,
-  CheckCircleIcon as CheckCircleIconSolid
+  CheckCircleIcon as CheckCircleIconSolid,
+  Squares2X2Icon as Squares2X2IconSolid
 } from '@heroicons/react/24/solid'
 
-type ActiveTab = 'dashboard' | 'compose' | 'calendar' | 'analytics' | 'settings' | 'todos'
+type ActiveTab = 'dashboard' | 'compose' | 'calendar' | 'bulk' | 'analytics' | 'settings' | 'todos'
 
 interface SidebarProps {
   activeTab: ActiveTab
@@ -30,6 +32,7 @@ const navigation = [
   { name: 'Dashboard', tab: 'dashboard', icon: HomeIcon, activeIcon: HomeIconSolid },
   { name: 'Compose', tab: 'compose', icon: PencilSquareIcon, activeIcon: PencilSquareIconSolid },
   { name: 'Calendar', tab: 'calendar', icon: CalendarIcon, activeIcon: CalendarIconSolid },
+  { name: 'Bulk Ops', tab: 'bulk', icon: Squares2X2Icon, activeIcon: Squares2X2IconSolid },
   { name: 'Analytics', tab: 'analytics', icon: ChartBarIcon, activeIcon: ChartBarIconSolid },
   { name: 'To-Dos', tab: 'todos', icon: CheckCircleIcon, activeIcon: CheckCircleIconSolid },
   { name: 'Settings', tab: 'settings', icon: Cog6ToothIcon, activeIcon: Cog6ToothIconSolid },
