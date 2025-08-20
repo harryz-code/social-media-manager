@@ -1,0 +1,43 @@
+'use client'
+
+import { useState } from 'react'
+import Sidebar from '@/components/Sidebar'
+import Dashboard from '@/components/Dashboard'
+import PostEditor from '@/components/PostEditor'
+import Calendar from '@/components/Calendar'
+import Analytics from '@/components/Analytics'
+import Settings from '@/components/Settings'
+
+type ActiveTab = 'dashboard' | 'compose' | 'calendar' | 'analytics' | 'settings'
+
+export default function Home() {
+  const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard')
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return <Dashboard />
+      case 'compose':
+        return <PostEditor />
+      case 'calendar':
+        return <Calendar />
+      case 'analytics':
+        return <Analytics />
+      case 'settings':
+        return <Settings />
+      default:
+        return <Dashboard />
+    }
+  }
+
+  return (
+    <div className="flex h-screen bg-gray-50">
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <main className="flex-1 overflow-auto">
+        <div className="p-8">
+          {renderContent()}
+        </div>
+      </main>
+    </div>
+  )
+}
