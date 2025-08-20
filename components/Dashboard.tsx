@@ -53,8 +53,8 @@ export default function Dashboard() {
   const realStats = [
     { name: 'Scheduled Posts', value: scheduledPosts.toString(), change: '+2', changeType: 'positive' as const },
     { name: 'Published This Week', value: publishedThisWeek.toString(), change: '+3', changeType: 'positive' as const },
-    { name: 'Total Engagement', value: analytics?.totalFollowers ? `${(analytics.totalFollowers / 1000).toFixed(1)}k` : '0', change: '+12%', changeType: 'positive' as const },
-    { name: 'Avg. Reach', value: analytics?.totalReach ? `${(analytics.totalReach / 1000).toFixed(1)}k` : '0', change: '+8%', changeType: 'positive' as const },
+    { name: 'Total Engagement', value: analytics && analytics.totalFollowers ? `${(analytics.totalFollowers / 1000).toFixed(1)}k` : '0', change: '+12%', changeType: 'positive' as const },
+    { name: 'Avg. Reach', value: analytics && analytics.totalReach ? `${(analytics.totalReach / 1000).toFixed(1)}k` : '0', change: '+8%', changeType: 'positive' as const },
   ]
 
   // Get recent posts
@@ -192,8 +192,6 @@ export default function Dashboard() {
               <p>No posts yet. Create your first post to get started!</p>
             </div>
           )}
-            </div>
-          ))}
         </div>
       </div>
     </div>
