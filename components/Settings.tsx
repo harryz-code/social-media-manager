@@ -10,46 +10,10 @@ import {
   CheckIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
+import PlatformConnections from './PlatformConnections'
 // Platform icons will be handled with emojis
 
-const platforms = [
-  {
-    id: 'linkedin',
-    name: 'LinkedIn',
-    icon: '💼',
-    color: 'text-linkedin',
-    description: 'Professional networking platform',
-    connected: true,
-    followers: '12.5k'
-  },
-  {
-    id: 'instagram',
-    name: 'Instagram',
-    icon: '📷',
-    color: 'text-instagram',
-    description: 'Photo and video sharing platform',
-    connected: true,
-    followers: '8.9k'
-  },
-  {
-    id: 'youtube',
-    name: 'YouTube',
-    icon: '📺',
-    color: 'text-youtube',
-    description: 'Video sharing platform',
-    connected: false,
-    followers: null
-  },
-  {
-    id: 'reddit',
-    name: 'Reddit',
-    icon: '🤖',
-    color: 'text-reddit',
-    description: 'Community discussion platform',
-    connected: true,
-    followers: '1.8k'
-  }
-]
+
 
 const notificationSettings = [
   {
@@ -92,15 +56,7 @@ export default function Settings() {
     )
   }
 
-  const connectPlatform = (platformId: string) => {
-    // Simulate platform connection
-    console.log(`Connecting to ${platformId}...`)
-  }
 
-  const disconnectPlatform = (platformId: string) => {
-    // Simulate platform disconnection
-    console.log(`Disconnecting from ${platformId}...`)
-  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -149,50 +105,7 @@ export default function Settings() {
 
       {/* Platform Connections */}
       {activeTab === 'platforms' && (
-        <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Connected Platforms</h2>
-          <div className="space-y-4">
-            {platforms.map((platform) => (
-              <div key={platform.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                <div className="flex items-center space-x-4">
-                  <div className={`w-12 h-12 ${platform.color} bg-gray-100 rounded-lg flex items-center justify-center`}>
-                    <span className="text-2xl">{platform.icon}</span>
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900">{platform.name}</h3>
-                    <p className="text-sm text-gray-500">{platform.description}</p>
-                    {platform.connected && platform.followers && (
-                      <p className="text-sm text-gray-600">{platform.followers} followers</p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  {platform.connected ? (
-                    <>
-                      <div className="flex items-center text-green-600">
-                        <CheckIcon className="w-4 h-4 mr-1" />
-                        <span className="text-sm font-medium">Connected</span>
-                      </div>
-                      <button
-                        onClick={() => disconnectPlatform(platform.id)}
-                        className="text-red-600 hover:text-red-700 text-sm font-medium"
-                      >
-                        Disconnect
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      onClick={() => connectPlatform(platform.id)}
-                      className="btn-primary"
-                    >
-                      Connect
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <PlatformConnections />
       )}
 
       {/* Notification Settings */}

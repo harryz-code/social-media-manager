@@ -5,7 +5,7 @@ A comprehensive social media management platform built with Next.js, TypeScript,
 ## Features
 
 ### 🚀 Core Features
-- **Multi-Platform Management**: Support for LinkedIn, Instagram, YouTube, Reddit, and more
+- **Multi-Platform Management**: Support for LinkedIn, Reddit, Threads, and more text-based platforms
 - **Real AI Integration**: Hugging Face API-powered content enhancement and suggestions
 - **Smart Scheduling**: Schedule posts across multiple platforms with automated publishing
 - **Content Templates**: Pre-built templates for different content types with variable filling
@@ -42,10 +42,11 @@ A comprehensive social media management platform built with Next.js, TypeScript,
 
 ### 🔗 Platform Integration
 - **LinkedIn**: Professional networking posts
-- **Instagram**: Photo and video content
-- **YouTube**: Video content management
-- **Reddit**: Community discussions
-- **TikTok**: Short-form video content (coming soon)
+- **Reddit**: Community discussions and content sharing
+- **Threads**: Instagram's text-focused social platform
+- **Twitter**: Real-time social networking (coming soon)
+
+*Note: Post Genius is optimized for text-based content. For visual platforms like Instagram, YouTube, and TikTok, we recommend specialized media management tools.*
 
 ## Tech Stack
 

@@ -40,9 +40,9 @@ const navigation = [
 
 const platforms = [
   { name: 'LinkedIn', icon: '💼', color: 'text-linkedin' },
-  { name: 'Instagram', icon: '📷', color: 'text-instagram' },
-  { name: 'YouTube', icon: '📺', color: 'text-youtube' },
   { name: 'Reddit', icon: '🤖', color: 'text-reddit' },
+  { name: 'Threads', icon: '🧵', color: 'text-threads' },
+  { name: 'Twitter', icon: '🐦', color: 'text-twitter' },
 ]
 
 export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {

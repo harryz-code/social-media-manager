@@ -61,7 +61,7 @@ export const getPostById = (postId: string): Post | undefined => {
   return posts.find(p => p.id === postId)
 }
 
-// Platforms storage
+// Platforms storage - Focus on text-based platforms
 export const getPlatforms = (): Platform[] => {
   return getFromStorage(STORAGE_KEYS.PLATFORMS, [
     {
@@ -72,24 +72,24 @@ export const getPlatforms = (): Platform[] => {
       connected: false
     },
     {
-      id: 'instagram',
-      name: 'Instagram',
-      icon: '📷',
-      color: 'text-instagram',
-      connected: false
-    },
-    {
-      id: 'youtube',
-      name: 'YouTube',
-      icon: '📺',
-      color: 'text-youtube',
-      connected: false
-    },
-    {
       id: 'reddit',
       name: 'Reddit',
       icon: '🤖',
       color: 'text-reddit',
+      connected: false
+    },
+    {
+      id: 'threads',
+      name: 'Threads',
+      icon: '🧵',
+      color: 'text-threads',
+      connected: false
+    },
+    {
+      id: 'twitter',
+      name: 'Twitter',
+      icon: '🐦',
+      color: 'text-twitter',
       connected: false
     }
   ])
