@@ -15,7 +15,6 @@ export default function AuthPage() {
           <div className="flex justify-center mb-4">
             <Logo size="xl" />
           </div>
-          <p className="text-gray-600">Your AI-powered social media manager</p>
         </div>
       </div>
 

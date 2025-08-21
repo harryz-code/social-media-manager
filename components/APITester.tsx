@@ -21,6 +21,7 @@ export default function APITester() {
           ...prev,
           [platform]: { status: 'error', message: 'Not connected' }
         }))
+        setIsTesting(false)
         return
       }
 
@@ -93,6 +94,30 @@ export default function APITester() {
     }
   }
 
+  const handleConnect = (platform: 'linkedin' | 'reddit' | 'threads') => {
+    try {
+      const authUrl = PlatformService.getAuthUrl(platform)
+      window.open(authUrl, '_blank', 'width=600,height=700,scrollbars=yes,resizable=yes')
+      
+      // Listen for auth completion
+      const checkAuth = setInterval(() => {
+        const connection = PlatformService.getConnection(platform)
+        if (connection) {
+          clearInterval(checkAuth)
+          testPlatformConnection(platform) // Test the connection after connecting
+          toast.success(`${platform} connected successfully!`)
+        }
+      }, 1000)
+
+      // Clear interval after 5 minutes
+      setTimeout(() => clearInterval(checkAuth), 300000)
+      
+    } catch (error) {
+      console.error(`Connection error for ${platform}:`, error)
+      toast.error(`Failed to connect ${platform}`)
+    }
+  }
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
@@ -121,18 +146,34 @@ export default function APITester() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {['linkedin', 'reddit', 'threads'].map((platform) => (
-            <div key={platform} className="border rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-medium text-gray-900 capitalize">{platform}</h3>
-                <button
-                  onClick={() => testPlatformConnection(platform)}
-                  disabled={isTesting}
-                  className="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded"
-                >
-                  Test
-                </button>
-              </div>
+          {['linkedin', 'reddit', 'threads'].map((platform) => {
+            const connection = PlatformService.getConnection(platform)
+            const isConnected = connection && connection.isValid
+            
+            return (
+              <div key={platform} className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-medium text-gray-900 capitalize">{platform}</h3>
+                  <div className="flex space-x-2">
+                    {!isConnected ? (
+                      <button
+                        onClick={() => handleConnect(platform as 'linkedin' | 'reddit' | 'threads')}
+                        disabled={isTesting}
+                        className="text-sm px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded"
+                      >
+                        Connect
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => testPlatformConnection(platform)}
+                        disabled={isTesting}
+                        className="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded"
+                      >
+                        Test
+                      </button>
+                    )}
+                  </div>
+                </div>
               
               {testResults[platform] && (
                 <div className="space-y-2">
@@ -156,7 +197,7 @@ export default function APITester() {
                 </div>
               )}
             </div>
-          ))}
+          )})}
         </div>
       </div>
 

@@ -79,8 +79,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <div>
-            <Logo size="md" className="mb-2" />
-            <p className="text-sm text-gray-500">AI-powered social media management</p>
+            <Logo size="md" />
           </div>
           <button
             onClick={() => setShowNotifications(!showNotifications)}
