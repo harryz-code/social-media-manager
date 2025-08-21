@@ -59,6 +59,54 @@ export default function PostEditor() {
     setShowCollaboration(true)
   }
 
+  // Platform-specific content formatting
+  const formatContentForPlatform = (content: string, platform: string) => {
+    switch (platform) {
+      case 'linkedin':
+        // LinkedIn prefers professional tone, hashtags, and line breaks
+        return content
+          .replace(/\n/g, '\n\n') // Double line breaks for LinkedIn
+          .replace(/#(\w+)/g, ' #$1') // Ensure hashtags have space before them
+      case 'reddit':
+        // Reddit prefers markdown formatting
+        return content
+          .replace(/\*\*(.*?)\*\*/g, '**$1**') // Bold text
+          .replace(/\*(.*?)\*/g, '*$1*') // Italic text
+      case 'threads':
+        // Threads prefers casual, conversational tone
+        return content
+          .replace(/\n/g, '\n') // Single line breaks
+          .replace(/#(\w+)/g, ' #$1') // Hashtags
+      default:
+        return content
+    }
+  }
+
+  // Get platform-specific suggestions
+  const getPlatformSuggestions = () => {
+    const suggestions: string[] = []
+    
+    if (selectedPlatforms.includes('linkedin')) {
+      suggestions.push('💼 Professional tone recommended')
+      suggestions.push('📊 Include industry insights')
+      suggestions.push('🤝 Engage with your network')
+    }
+    
+    if (selectedPlatforms.includes('reddit')) {
+      suggestions.push('🤖 Check subreddit rules first')
+      suggestions.push('📝 Use markdown formatting')
+      suggestions.push('💬 Engage with the community')
+    }
+    
+    if (selectedPlatforms.includes('threads')) {
+      suggestions.push('🧵 Keep it conversational')
+      suggestions.push('📱 Use emojis naturally')
+      suggestions.push('🔥 Follow trending topics')
+    }
+    
+    return suggestions
+  }
+
   // Load platforms on component mount
   useEffect(() => {
     const loadPlatforms = () => {
@@ -86,7 +134,16 @@ export default function PostEditor() {
 
   const content = watch('content')
   const characterCount = content.length
-  const maxCharacters = 280
+  
+  // Platform-specific character limits
+  const getMaxCharacters = () => {
+    if (selectedPlatforms.includes('threads')) return 500
+    if (selectedPlatforms.includes('linkedin')) return 3000
+    if (selectedPlatforms.includes('reddit')) return 40000
+    return 280 // Default
+  }
+  
+  const maxCharacters = getMaxCharacters()
 
   const handlePlatformToggle = (platformId: string) => {
     setSelectedPlatforms(prev => 
@@ -131,15 +188,18 @@ export default function PostEditor() {
     setIsLoading(true)
     
     try {
-      // Create post object
+      // Format content for each platform
+      const formattedContent = improvedContent || data.content
+      
+      // Create post object with platform-specific formatting
       const post: Post = {
         id: generateId(),
-        content: improvedContent || data.content,
+        content: formattedContent,
         platforms: selectedPlatforms,
         status: data.scheduledDate && data.scheduledTime ? 'scheduled' : 'draft',
         createdAt: new Date(),
         updatedAt: new Date(),
-        hashtags: await AIService.generateHashtags(data.content, 5)
+        hashtags: await AIService.generateHashtags(formattedContent, 5)
       }
 
       // Set scheduled time if provided
@@ -279,15 +339,44 @@ export default function PostEditor() {
                 Add Link
               </button>
             </div>
-            <div className={`text-sm ${
-              characterCount > maxCharacters * 0.9 ? 'text-red-600' : 'text-gray-500'
-            }`}>
-              {characterCount}/{maxCharacters}
+            <div className="flex items-center space-x-4">
+              {/* Platform-specific character limits */}
+              <div className="flex items-center space-x-2 text-xs text-gray-500">
+                {selectedPlatforms.includes('linkedin') && (
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">LinkedIn: 3,000</span>
+                )}
+                {selectedPlatforms.includes('reddit') && (
+                  <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded">Reddit: 40,000</span>
+                )}
+                {selectedPlatforms.includes('threads') && (
+                  <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">Threads: 500</span>
+                )}
+              </div>
+              <div className={`text-sm ${
+                characterCount > maxCharacters * 0.9 ? 'text-red-600' : 'text-gray-500'
+              }`}>
+                {characterCount}/{maxCharacters}
+              </div>
             </div>
           </div>
 
           {errors.content && (
             <p className="text-red-600 text-sm mt-2">{errors.content.message}</p>
+          )}
+
+          {/* Platform-specific suggestions */}
+          {selectedPlatforms.length > 0 && (
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Platform Tips:</h4>
+              <ul className="space-y-1">
+                {getPlatformSuggestions().map((suggestion, index) => (
+                  <li key={index} className="text-sm text-gray-600 flex items-start">
+                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
 
           {/* AI Suggestions */}
@@ -373,8 +462,8 @@ export default function PostEditor() {
                       <span className={`text-lg ${platform.color} mr-2`}>{platform.icon}</span>
                       <span className="font-medium text-gray-900">{platform.name}</span>
                     </div>
-                    <div className="text-gray-900 leading-relaxed">
-                      {improvedContent || content || "Your post content will appear here..."}
+                    <div className="text-gray-900 leading-relaxed whitespace-pre-wrap">
+                      {formatContentForPlatform(improvedContent || content || "Your post content will appear here...", platformId)}
                     </div>
                     <div className="mt-3 text-sm text-gray-500">
                       {characterCount}/{maxCharacters} characters

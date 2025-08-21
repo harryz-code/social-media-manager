@@ -83,24 +83,27 @@ export default function PlatformConnections() {
       name: 'LinkedIn',
       icon: '💼',
       description: 'Professional networking and business content',
-      features: ['Text posts', 'Professional audience', 'Business analytics'],
-      color: 'border-blue-200 hover:border-blue-300'
+      features: ['Text posts', 'Professional audience', 'Business analytics', 'Free API'],
+      color: 'border-blue-200 hover:border-blue-300',
+      status: 'active'
     },
     {
       id: 'reddit',
       name: 'Reddit',
       icon: '🤖',
       description: 'Community discussions and content sharing',
-      features: ['Text & link posts', 'Subreddit targeting', 'Community engagement'],
-      color: 'border-orange-200 hover:border-orange-300'
+      features: ['Text & link posts', 'Subreddit targeting', 'Community engagement', 'Free API'],
+      color: 'border-orange-200 hover:border-orange-300',
+      status: 'active'
     },
     {
       id: 'threads',
       name: 'Threads',
       icon: '🧵',
       description: 'Instagram\'s text-focused social platform',
-      features: ['Text posts', 'Conversational content', 'Instagram integration'],
-      color: 'border-purple-200 hover:border-purple-300'
+      features: ['Text posts', 'Conversational content', 'Instagram integration', 'Free API'],
+      color: 'border-purple-200 hover:border-purple-300',
+      status: 'active'
     },
     {
       id: 'facebook',
@@ -108,16 +111,17 @@ export default function PlatformConnections() {
       icon: '📘',
       description: 'Social networking and community building',
       features: ['Text posts', 'Community engagement', 'Personal & business pages'],
-      color: 'border-blue-200 hover:border-blue-300'
+      color: 'border-blue-200 hover:border-blue-300',
+      status: 'coming-soon'
     },
     {
       id: 'twitter',
-      name: 'Twitter',
+      name: 'Twitter/X',
       icon: '🐦',
-      description: 'Real-time social networking (Coming Soon)',
+      description: 'Real-time social networking',
       features: ['Short-form content', 'Real-time engagement', 'Trending topics'],
       color: 'border-gray-200 hover:border-gray-300',
-      comingSoon: true
+      status: 'coming-soon'
     }
   ]
 
@@ -161,9 +165,14 @@ export default function PlatformConnections() {
                   </div>
                 </div>
                 
-                {platform.comingSoon && (
+                {platform.status === 'coming-soon' && (
                   <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
                     Coming Soon
+                  </span>
+                )}
+                {platform.status === 'active' && (
+                  <span className="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">
+                    Available
                   </span>
                 )}
               </div>
@@ -200,7 +209,7 @@ export default function PlatformConnections() {
 
               {/* Actions */}
               <div className="flex space-x-2">
-                {platform.comingSoon ? (
+                {platform.status === 'coming-soon' ? (
                   <button
                     disabled
                     className="flex-1 px-4 py-2 bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed"
@@ -252,23 +261,32 @@ export default function PlatformConnections() {
 
       {/* Setup Instructions */}
       <div className="mt-12 card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Setup Instructions</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Setup Instructions for Text-Focused Platforms</h2>
         <div className="space-y-4 text-sm text-gray-600">
           <div>
-            <h3 className="font-medium text-gray-900">LinkedIn:</h3>
-            <p>Create a LinkedIn app at <a href="https://developer.linkedin.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">developer.linkedin.com</a> and add your credentials to the environment variables.</p>
+            <h3 className="font-medium text-gray-900">LinkedIn (Free API):</h3>
+            <p>Create a LinkedIn app at <a href="https://developer.linkedin.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">developer.linkedin.com</a>. Request access to Marketing Developer Platform for posting capabilities.</p>
           </div>
           <div>
-            <h3 className="font-medium text-gray-900">Reddit:</h3>
-            <p>Create a Reddit app at <a href="https://reddit.com/prefs/apps" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">reddit.com/prefs/apps</a> and configure the OAuth settings.</p>
+            <h3 className="font-medium text-gray-900">Reddit (Free API):</h3>
+            <p>Create a Reddit app at <a href="https://reddit.com/prefs/apps" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">reddit.com/prefs/apps</a>. Choose "web app" type and set redirect URI to <code className="bg-gray-100 px-1 rounded">http://localhost:3000/auth/reddit/callback</code>.</p>
           </div>
           <div>
-            <h3 className="font-medium text-gray-900">Threads:</h3>
-            <p>Create an Instagram app at <a href="https://developers.facebook.com/apps" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">developers.facebook.com/apps</a> and configure Instagram Basic Display API.</p>
+            <h3 className="font-medium text-gray-900">Threads (Free API):</h3>
+            <p>Create an Instagram app at <a href="https://developers.facebook.com/apps" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">developers.facebook.com/apps</a>. Configure Instagram Basic Display API for Threads integration.</p>
           </div>
           <div>
             <h3 className="font-medium text-gray-900">Environment Variables:</h3>
-            <p>Add your API credentials to <code className="bg-gray-100 px-1 rounded">.env.local</code> file in your project root.</p>
+            <p>Add your API credentials to <code className="bg-gray-100 px-1 rounded">.env.local</code> file in your project root. See <code className="bg-gray-100 px-1 rounded">env.example</code> for the required variables.</p>
+          </div>
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <h4 className="font-medium text-blue-900 mb-2">💡 Why These Platforms?</h4>
+            <ul className="text-blue-800 space-y-1">
+              <li>• <strong>Text-focused:</strong> All three platforms excel at text content</li>
+              <li>• <strong>Free APIs:</strong> No paid subscriptions required</li>
+              <li>• <strong>Active communities:</strong> High engagement potential</li>
+              <li>• <strong>Professional & casual:</strong> Cover different audience types</li>
+            </ul>
           </div>
         </div>
       </div>

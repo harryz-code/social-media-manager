@@ -1,0 +1,13 @@
+<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background square with rounded corners -->
+  <rect x="2" y="2" width="28" height="28" rx="6" fill="#374151"/>
+  
+  <!-- Arrow body (horizontal rectangle) -->
+  <rect x="6" y="12" width="12" height="8" rx="2" fill="white"/>
+  
+  <!-- Arrow head (triangle) -->
+  <path d="M18 12 L26 16 L18 20 Z" fill="white"/>
+  
+  <!-- Dot at the tip -->
+  <circle cx="26" cy="16" r="1.5" fill="white"/>
+</svg>

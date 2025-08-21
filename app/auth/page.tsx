@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import LoginForm from '@/components/Auth/LoginForm'
 import SignUpForm from '@/components/Auth/SignUpForm'
+import Logo from '@/components/Logo'
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
@@ -11,7 +12,9 @@ export default function AuthPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Post Genius</h1>
+          <div className="flex justify-center mb-4">
+            <Logo size="xl" />
+          </div>
           <p className="text-gray-600">Your AI-powered social media manager</p>
         </div>
       </div>

@@ -35,7 +35,7 @@ export class LinkedInAPI {
   private static config: LinkedInAuthConfig = {
     clientId: process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || '',
     clientSecret: process.env.LINKEDIN_CLIENT_SECRET || '',
-    redirectUri: process.env.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI || 'http://localhost:3001/auth/linkedin/callback',
+    redirectUri: process.env.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI || 'http://localhost:3000/auth/linkedin/callback',
     scope: ['r_liteprofile', 'r_emailaddress', 'w_member_social', 'r_organization_social']
   }
 

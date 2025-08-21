@@ -2,193 +2,195 @@
 
 import { useState } from 'react'
 import { PlatformService } from '@/lib/api/platformService'
-import { AuthService } from '@/lib/auth'
+import { LinkedInAPI } from '@/lib/api/linkedin'
+import { RedditAPI } from '@/lib/api/reddit'
+import { ThreadsAPI } from '@/lib/api/threads'
 import toast from 'react-hot-toast'
 
-interface APITesterProps {
-  onConnectionSuccess?: (platform: string) => void
-}
+export default function APITester() {
+  const [testResults, setTestResults] = useState<Record<string, any>>({})
+  const [isTesting, setIsTesting] = useState(false)
 
-export default function APITester({ onConnectionSuccess }: APITesterProps) {
-  const [isConnecting, setIsConnecting] = useState<string | null>(null)
-  const [testContent, setTestContent] = useState('This is a test post from Post Genius! 🚀')
-  const [isPosting, setIsPosting] = useState<string | null>(null)
-
-  const platforms = [
-    { id: 'linkedin', name: 'LinkedIn', color: 'text-linkedin' },
-    { id: 'reddit', name: 'Reddit', color: 'text-reddit' },
-    { id: 'threads', name: 'Threads', color: 'text-threads' }
-  ]
-
-  const handleConnect = async (platformId: string) => {
-    setIsConnecting(platformId)
-    
+  const testPlatformConnection = async (platform: string) => {
+    setIsTesting(true)
     try {
-      const authUrl = PlatformService.getAuthUrl(platformId as 'linkedin' | 'reddit' | 'threads')
-      window.location.href = authUrl
-    } catch (error: any) {
-      toast.error(`Failed to connect to ${platformId}: ${error.message}`)
-      setIsConnecting(null)
-    }
-  }
-
-  const handleTestPost = async (platformId: string) => {
-    setIsPosting(platformId)
-    
-    try {
-      const connections = PlatformService.getConnections()
-      const connection = connections.find(c => c.platform === platformId)
+      const connection = PlatformService.getConnection(platform)
       
       if (!connection) {
-        toast.error(`No connection found for ${platformId}`)
+        setTestResults(prev => ({
+          ...prev,
+          [platform]: { status: 'error', message: 'Not connected' }
+        }))
         return
       }
 
-      const postId = await PlatformService.publishPost(platformId as 'linkedin' | 'reddit' | 'threads', {
-        content: testContent,
-        platforms: [platformId],
-        scheduledFor: new Date(),
-        status: 'published',
-        hashtags: ['#test', '#postgenius'],
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
+      let isValid = false
+      switch (platform) {
+        case 'linkedin':
+          isValid = await LinkedInAPI.validateToken(connection.accessToken)
+          break
+        case 'reddit':
+          isValid = await RedditAPI.validateToken(connection.accessToken)
+          break
+        case 'threads':
+          isValid = await ThreadsAPI.validateToken(connection.accessToken)
+          break
+      }
 
-      toast.success(`Successfully posted to ${platformId}! Post ID: ${postId}`)
-    } catch (error: any) {
-      toast.error(`Failed to post to ${platformId}: ${error.message}`)
+      setTestResults(prev => ({
+        ...prev,
+        [platform]: { 
+          status: isValid ? 'success' : 'error', 
+          message: isValid ? 'Connection valid' : 'Token expired or invalid',
+          profile: connection.profile
+        }
+      }))
+
+      if (isValid) {
+        toast.success(`${platform} connection is valid!`)
+      } else {
+        toast.error(`${platform} connection failed`)
+      }
+    } catch (error) {
+      setTestResults(prev => ({
+        ...prev,
+        [platform]: { 
+          status: 'error', 
+          message: error instanceof Error ? error.message : 'Unknown error'
+        }
+      }))
+      toast.error(`${platform} test failed`)
     } finally {
-      setIsPosting(null)
+      setIsTesting(false)
     }
   }
 
-  const getConnectionStatus = (platformId: string) => {
-    const connections = PlatformService.getConnections()
-    return connections.find(c => c.platform === platformId)
+  const testAllConnections = async () => {
+    setIsTesting(true)
+    const platforms = ['linkedin', 'reddit', 'threads']
+    
+    for (const platform of platforms) {
+      await testPlatformConnection(platform)
+      // Small delay between tests
+      await new Promise(resolve => setTimeout(resolve, 500))
+    }
+    setIsTesting(false)
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'success': return 'text-green-600'
+      case 'error': return 'text-red-600'
+      default: return 'text-gray-600'
+    }
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'success': return '✅'
+      case 'error': return '❌'
+      default: return '⏳'
+    }
   }
 
   return (
-    <div className="card">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">API Connection Tester</h2>
-      <p className="text-gray-600 mb-6">Test real API connections and posting functionality</p>
-
-      {/* Test Content */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Test Post Content
-        </label>
-        <textarea
-          value={testContent}
-          onChange={(e) => setTestContent(e.target.value)}
-          className="input-field w-full"
-          rows={3}
-          placeholder="Enter content to test posting..."
-        />
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">API Connection Tester</h1>
+        <p className="text-gray-600">Test your platform connections and verify API functionality</p>
       </div>
 
-      {/* Platform Connections */}
-      <div className="space-y-4">
-        {platforms.map((platform) => {
-          const connection = getConnectionStatus(platform.id)
-          
-          return (
-            <div key={platform.id} className="border border-gray-200 rounded-lg p-4">
+      <div className="card">
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Platform Connections</h2>
+          <div className="flex space-x-4">
+            <button
+              onClick={testAllConnections}
+              disabled={isTesting}
+              className="btn-primary"
+            >
+              {isTesting ? 'Testing...' : 'Test All Connections'}
+            </button>
+            <button
+              onClick={() => setTestResults({})}
+              className="btn-secondary"
+            >
+              Clear Results
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {['linkedin', 'reddit', 'threads'].map((platform) => (
+            <div key={platform} className="border rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center">
-                  <span className={`text-xl mr-3 ${platform.color}`}>
-                    {platform.id === 'linkedin' && '💼'}
-                    {platform.id === 'reddit' && '🤖'}
-                    {platform.id === 'threads' && '🧵'}
-                  </span>
-                  <span className="font-medium text-gray-900">{platform.name}</span>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  {connection ? (
-                    <div className="flex items-center text-green-600">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                      <span className="text-sm">Connected</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center text-gray-500">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
-                      <span className="text-sm">Not Connected</span>
+                <h3 className="font-medium text-gray-900 capitalize">{platform}</h3>
+                <button
+                  onClick={() => testPlatformConnection(platform)}
+                  disabled={isTesting}
+                  className="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded"
+                >
+                  Test
+                </button>
+              </div>
+              
+              {testResults[platform] && (
+                <div className="space-y-2">
+                  <div className={`flex items-center ${getStatusColor(testResults[platform].status)}`}>
+                    <span className="mr-2">{getStatusIcon(testResults[platform].status)}</span>
+                    <span className="text-sm font-medium">
+                      {testResults[platform].status === 'success' ? 'Connected' : 'Failed'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    {testResults[platform].message}
+                  </p>
+                  {testResults[platform].profile && (
+                    <div className="text-sm text-gray-500">
+                      <p>Name: {testResults[platform].profile.name}</p>
+                      {testResults[platform].profile.username && (
+                        <p>Username: {testResults[platform].profile.username}</p>
+                      )}
                     </div>
                   )}
                 </div>
-              </div>
-
-              <div className="flex space-x-2">
-                {!connection ? (
-                  <button
-                    onClick={() => handleConnect(platform.id)}
-                    disabled={isConnecting === platform.id}
-                    className="btn-primary flex-1"
-                  >
-                    {isConnecting === platform.id ? 'Connecting...' : 'Connect'}
-                  </button>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => handleTestPost(platform.id)}
-                      disabled={isPosting === platform.id}
-                      className="btn-primary flex-1"
-                    >
-                      {isPosting === platform.id ? 'Posting...' : 'Test Post'}
-                    </button>
-                    <button
-                      onClick={() => {
-                        PlatformService.deleteConnection(platform.id)
-                        toast.success(`Disconnected from ${platform.name}`)
-                      }}
-                      className="btn-secondary"
-                    >
-                      Disconnect
-                    </button>
-                  </>
-                )}
-              </div>
-
-              {connection && (
-                <div className="mt-3 text-sm text-gray-600">
-                  <p>Connected as: {connection.profile?.name || 'Unknown'}</p>
-                  <p>Connected at: {new Date(connection.connectedAt).toLocaleDateString()}</p>
-                </div>
               )}
             </div>
-          )
-        })}
-      </div>
-
-      {/* Environment Variables Check */}
-      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-        <h3 className="font-medium text-gray-900 mb-2">Environment Variables Status</h3>
-        <div className="space-y-1 text-sm">
-          <div className="flex items-center">
-            <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-            <span>LinkedIn Client ID: {process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID ? '✅ Set' : '❌ Missing'}</span>
-          </div>
-          <div className="flex items-center">
-            <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-            <span>Reddit Client ID: {process.env.NEXT_PUBLIC_REDDIT_CLIENT_ID ? '✅ Set' : '❌ Missing'}</span>
-          </div>
-          <div className="flex items-center">
-            <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-            <span>Threads Client ID: {process.env.NEXT_PUBLIC_THREADS_CLIENT_ID ? '✅ Set' : '❌ Missing'}</span>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Instructions */}
-      <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-        <h3 className="font-medium text-blue-900 mb-2">Setup Instructions</h3>
-        <ol className="text-sm text-blue-800 space-y-1">
-          <li>1. Set up your environment variables in <code>.env.local</code></li>
-          <li>2. Create OAuth apps for each platform</li>
-          <li>3. Configure redirect URIs in your OAuth apps</li>
-          <li>4. Click "Connect" to test the OAuth flow</li>
-          <li>5. Use "Test Post" to verify real posting functionality</li>
-        </ol>
+      <div className="mt-8 card">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">API Information</h2>
+        <div className="space-y-4 text-sm text-gray-600">
+          <div>
+            <h3 className="font-medium text-gray-900">LinkedIn API</h3>
+            <ul className="mt-2 space-y-1">
+              <li>• Character limit: 3,000 characters</li>
+              <li>• Professional audience</li>
+              <li>• Business-focused content</li>
+              <li>• Requires Marketing Developer Platform access</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-medium text-gray-900">Reddit API</h3>
+            <ul className="mt-2 space-y-1">
+              <li>• Character limit: 40,000 characters</li>
+              <li>• Community discussions</li>
+              <li>• Markdown formatting supported</li>
+              <li>• Rate limit: 60 requests/minute</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-medium text-gray-900">Threads API</h3>
+            <ul className="mt-2 space-y-1">
+              <li>• Character limit: 500 characters</li>
+              <li>• Conversational content</li>
+              <li>• Instagram integration</li>
+              <li>• Requires business/creator account for posting</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   )

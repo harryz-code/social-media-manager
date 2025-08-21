@@ -40,6 +40,7 @@ const navigation = [
 ]
 
 import PlatformIcon from './PlatformIcon'
+import Logo from './Logo'
 
 const platforms = [
   { id: 'linkedin', name: 'LinkedIn', color: 'text-linkedin' },
@@ -78,7 +79,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Post Genius</h1>
+            <Logo size="md" className="mb-2" />
             <p className="text-sm text-gray-500">AI-powered social media management</p>
           </div>
           <button

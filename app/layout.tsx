@@ -8,8 +8,11 @@ import DataInitializer from '@/components/DataInitializer'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Post Genius - AI-Powered Social Media Manager',
+  title: 'POST GENIUS - AI-Powered Social Media Manager',
   description: 'Create, schedule, and optimize your social media posts with AI',
+  icons: {
+    icon: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({
