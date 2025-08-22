@@ -45,12 +45,16 @@ export class RedditAPI {
   private static config: RedditAuthConfig = {
     clientId: process.env.NEXT_PUBLIC_REDDIT_CLIENT_ID || '',
     clientSecret: process.env.REDDIT_CLIENT_SECRET || '',
-    redirectUri: process.env.NEXT_PUBLIC_REDDIT_REDIRECT_URI || 'http://localhost:3001/auth/reddit/callback',
+    redirectUri: process.env.NEXT_PUBLIC_REDDIT_REDIRECT_URI || 'http://localhost:3000/auth/reddit/callback',
     userAgent: 'PostGenius/1.0.0 by PostGenius'
   }
 
   // OAuth Authentication Flow
   static getAuthUrl(): string {
+    console.log('🔍 Reddit OAuth Debug:')
+    console.log('  - Client ID:', this.config.clientId)
+    console.log('  - Redirect URI:', this.config.redirectUri)
+    
     const params = new URLSearchParams({
       client_id: this.config.clientId,
       response_type: 'code',
@@ -60,12 +64,29 @@ export class RedditAPI {
       scope: 'identity read submit edit history'
     })
 
-    return `${this.BASE_URL}/authorize?${params.toString()}`
+    const authUrl = `${this.BASE_URL}/authorize?${params.toString()}`
+    console.log('  - Generated Auth URL:', authUrl)
+    
+    return authUrl
   }
 
   static async exchangeCodeForToken(code: string): Promise<{ accessToken: string; refreshToken: string }> {
     try {
       const auth = btoa(`${this.config.clientId}:${this.config.clientSecret}`)
+      
+      console.log('🔍 Reddit token exchange debug:')
+      console.log('  - Client ID:', this.config.clientId)
+      console.log('  - Redirect URI:', this.config.redirectUri)
+      console.log('  - Code length:', code.length)
+      console.log('  - Auth header:', `Basic ${auth.substring(0, 20)}...`)
+      
+      const requestBody = new URLSearchParams({
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: this.config.redirectUri
+      })
+      
+      console.log('  - Request body:', requestBody.toString())
       
       const response = await fetch(`${this.BASE_URL}/access_token`, {
         method: 'POST',
@@ -74,18 +95,26 @@ export class RedditAPI {
           'Content-Type': 'application/x-www-form-urlencoded',
           'User-Agent': this.config.userAgent
         },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          code,
-          redirect_uri: this.config.redirectUri
-        })
+        body: requestBody
       })
 
+      console.log('  - Response status:', response.status)
+      console.log('  - Response headers:', Object.fromEntries(response.headers.entries()))
+
       if (!response.ok) {
-        throw new Error(`Token exchange failed: ${response.status}`)
+        const errorText = await response.text()
+        console.error('  - Error response body:', errorText)
+        throw new Error(`Token exchange failed: ${response.status} - ${errorText}`)
       }
 
       const data = await response.json()
+      console.log('  - Success response:', { 
+        access_token: data.access_token ? data.access_token.substring(0, 20) + '...' : 'missing',
+        refresh_token: data.refresh_token ? data.refresh_token.substring(0, 20) + '...' : 'missing',
+        token_type: data.token_type,
+        expires_in: data.expires_in
+      })
+      
       return {
         accessToken: data.access_token,
         refreshToken: data.refresh_token
@@ -131,9 +160,27 @@ export class RedditAPI {
     accessToken: string, 
     subreddit: string, 
     title: string, 
-    text: string
+    text: string,
+    flair?: string
   ): Promise<string> {
     try {
+      console.log('🔍 Reddit post submission debug:')
+      console.log('  - Subreddit:', subreddit)
+      console.log('  - Title length:', title.length)
+      console.log('  - Text length:', text.length)
+      console.log('  - Access token:', accessToken.substring(0, 20) + '...')
+      
+      const requestBody = new URLSearchParams({
+        sr: subreddit,
+        kind: 'self',
+        title,
+        text,
+        api_type: 'json',
+        ...(flair && { flair_id: flair })
+      })
+      
+      console.log('  - Request body:', requestBody.toString())
+      
       const response = await fetch(`${this.OAUTH_URL}/api/submit`, {
         method: 'POST',
         headers: {
@@ -141,22 +188,23 @@ export class RedditAPI {
           'Content-Type': 'application/x-www-form-urlencoded',
           'User-Agent': this.config.userAgent
         },
-        body: new URLSearchParams({
-          sr: subreddit,
-          kind: 'self',
-          title,
-          text,
-          api_type: 'json'
-        })
+        body: requestBody
       })
 
+      console.log('  - Response status:', response.status)
+      console.log('  - Response headers:', Object.fromEntries(response.headers.entries()))
+
       if (!response.ok) {
-        throw new Error(`Post submission failed: ${response.status}`)
+        const errorText = await response.text()
+        console.error('  - Error response body:', errorText)
+        throw new Error(`Post submission failed: ${response.status} - ${errorText}`)
       }
 
       const data = await response.json()
+      console.log('  - Success response:', data)
       
       if (data.json.errors && data.json.errors.length > 0) {
+        console.error('  - Reddit API errors:', data.json.errors)
         throw new Error(`Reddit API Error: ${data.json.errors[0][1]}`)
       }
 

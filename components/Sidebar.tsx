@@ -41,6 +41,7 @@ const navigation = [
 
 import PlatformIcon from './PlatformIcon'
 import Logo from './Logo'
+import { PlatformService } from '@/lib/api/platformService'
 
 const platforms = [
   { id: 'linkedin', name: 'LinkedIn', color: 'text-linkedin' },
@@ -57,6 +58,12 @@ const platforms = [
 export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   const [notifications, setNotifications] = useState<any[]>([])
   const [showNotifications, setShowNotifications] = useState(false)
+  const [connections, setConnections] = useState<any[]>([])
+
+  const loadConnections = () => {
+    const platformConnections = PlatformService.getConnections()
+    setConnections(platformConnections)
+  }
 
   useEffect(() => {
     // Load notifications
@@ -69,6 +76,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
       }
     }
     loadNotifications()
+    loadConnections()
   }, [])
 
   const unreadCount = notifications.filter(n => !n.read).length
@@ -125,16 +133,23 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
             Connected Platforms
           </h3>
           <div className="space-y-2">
-            {platforms.map((platform) => (
-              <div
-                key={platform.id}
-                className="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50"
-              >
-                <PlatformIcon platform={platform.id} size="sm" className="mr-3" />
-                {platform.name}
-                <div className="ml-auto w-2 h-2 bg-green-500 rounded-full"></div>
-              </div>
-            ))}
+            {platforms.map((platform) => {
+              const connection = connections.find(c => c.platform === platform.id)
+              const isConnected = connection && connection.isValid
+              
+              return (
+                <div
+                  key={platform.id}
+                  className="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  <PlatformIcon platform={platform.id} size="sm" className="mr-3" />
+                  {platform.name}
+                  <div className={`ml-auto w-2 h-2 rounded-full ${
+                    isConnected ? 'bg-green-500' : 'bg-gray-300'
+                  }`}></div>
+                </div>
+              )
+            })}
           </div>
         </div>
       </nav>

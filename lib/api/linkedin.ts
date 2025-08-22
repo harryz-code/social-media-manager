@@ -36,11 +36,18 @@ export class LinkedInAPI {
     clientId: process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || '',
     clientSecret: process.env.LINKEDIN_CLIENT_SECRET || '',
     redirectUri: process.env.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI || 'http://localhost:3000/auth/linkedin/callback',
-    scope: ['r_liteprofile', 'r_emailaddress', 'w_member_social', 'r_organization_social']
+    scope: ['r_liteprofile', 'r_emailaddress']
   }
 
   // OAuth Authentication Flow
   static getAuthUrl(): string {
+    console.log('LinkedIn Client ID being used:', this.config.clientId);
+    console.log('Environment variable check:', process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID);
+    
+    if (!this.config.clientId) {
+      throw new Error('LinkedIn Client ID is not configured. Please check your .env.local file.');
+    }
+    
     const params = new URLSearchParams({
       response_type: 'code',
       client_id: this.config.clientId,
@@ -49,7 +56,9 @@ export class LinkedInAPI {
       state: Math.random().toString(36).substring(7) // CSRF protection
     })
 
-    return `${this.AUTH_URL}/authorization?${params.toString()}`
+    const authUrl = `${this.AUTH_URL}/authorization?${params.toString()}`
+    console.log('LinkedIn Auth URL:', authUrl)
+    return authUrl
   }
 
   static async exchangeCodeForToken(code: string): Promise<string> {

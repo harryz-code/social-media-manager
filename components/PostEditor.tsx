@@ -28,6 +28,7 @@ import toast from 'react-hot-toast'
 
 const postSchema = z.object({
   content: z.string().min(1, 'Content is required').max(280, 'Content must be less than 280 characters'),
+  title: z.string().optional(), // Optional title for Reddit posts
   platforms: z.array(z.string()).min(1, 'Select at least one platform'),
   scheduledDate: z.string().optional(),
   scheduledTime: z.string().optional(),
@@ -45,6 +46,14 @@ export default function PostEditor() {
   const [isLoading, setIsLoading] = useState(false)
   const [showCollaboration, setShowCollaboration] = useState(false)
   const [currentPostId, setCurrentPostId] = useState<string>('')
+  const [selectedSubreddit, setSelectedSubreddit] = useState<string>('')
+  const [redditTitle, setRedditTitle] = useState<string>('')
+  const [subredditSuggestions] = useState([
+    'AskReddit', 'todayilearned', 'LifeProTips', 'explainlikeimfive',
+    'technology', 'programming', 'webdev', 'MachineLearning',
+    'entrepreneur', 'business', 'startups', 'marketing',
+    'socialmedia', 'digital_marketing', 'content_marketing'
+  ])
 
   const handleTemplateSelect = (content: string) => {
     setValue('content', content)
@@ -126,6 +135,7 @@ export default function PostEditor() {
     resolver: zodResolver(postSchema),
     defaultValues: {
       content: '',
+      title: '',
       platforms: [],
       scheduledDate: '',
       scheduledTime: '',
@@ -191,15 +201,79 @@ export default function PostEditor() {
       // Format content for each platform
       const formattedContent = improvedContent || data.content
       
+      // Handle Reddit posting if selected
+      if (selectedPlatforms.includes('reddit') && selectedSubreddit) {
+        const accessToken = localStorage.getItem('reddit_access_token')
+        if (!accessToken) {
+          toast.error('Please connect your Reddit account first')
+          return
+        }
+        
+        try {
+          // Post to Reddit
+          const redditContent = formatContentForPlatform(formattedContent, 'reddit')
+          const subreddit = selectedSubreddit.replace('r/', '')
+          
+          // Use separate title and text for Reddit
+          const title = redditTitle.trim() || redditContent.substring(0, 300) // Use custom title or fallback
+          const text = redditContent
+          
+          console.log('🔄 Posting to Reddit:', { subreddit, title: title.substring(0, 50) + '...', text: text.substring(0, 100) + '...' })
+          
+          // Actually post to Reddit via server-side API
+          const response = await fetch('/api/posts/reddit', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              subreddit: subreddit.replace('r/', '').replace('/', ''), // Remove r/ and / prefixes
+              title: title,
+              text: text,
+              accessToken
+            }),
+          })
+
+          if (!response.ok) {
+            const errorData = await response.json()
+            throw new Error(errorData.error || 'Failed to post to Reddit')
+          }
+
+          const result = await response.json()
+          console.log('✅ Reddit post successful:', result)
+          
+          toast.success(`Posted to r/${subreddit} successfully!`)
+          
+        } catch (error) {
+          console.error('Reddit posting error:', error)
+          toast.error(`Failed to post to Reddit: ${error instanceof Error ? error.message : 'Unknown error'}`)
+          return
+        }
+      }
+      
+      // Determine post status
+      let postStatus: 'draft' | 'scheduled' | 'published' = 'draft'
+      
+      if (data.scheduledDate && data.scheduledTime) {
+        postStatus = 'scheduled'
+      } else if (selectedPlatforms.length > 0) {
+        // If platforms are selected and no scheduling, publish immediately
+        postStatus = 'published'
+      }
+      
       // Create post object with platform-specific formatting
       const post: Post = {
         id: generateId(),
         content: formattedContent,
         platforms: selectedPlatforms,
-        status: data.scheduledDate && data.scheduledTime ? 'scheduled' : 'draft',
+        status: postStatus,
         createdAt: new Date(),
         updatedAt: new Date(),
-        hashtags: await AIService.generateHashtags(formattedContent, 5)
+        hashtags: await AIService.generateHashtags(formattedContent, 5),
+        // Add Reddit-specific data
+        ...(selectedPlatforms.includes('reddit') && selectedSubreddit && {
+          redditSubreddit: selectedSubreddit.replace('r/', '')
+        })
       }
 
       // Set scheduled time if provided
@@ -213,16 +287,22 @@ export default function PostEditor() {
       
       if (post.status === 'scheduled') {
         NotificationService.notifyPostScheduled(post)
+        toast.success('Post scheduled successfully!')
+      } else if (post.status === 'published') {
+        toast.success('Post published successfully!')
       } else {
         toast.success('Post saved as draft!')
       }
       
       // Reset form
       setValue('content', '')
+      setValue('title', '')
       setValue('platforms', [])
       setValue('scheduledDate', '')
       setValue('scheduledTime', '')
       setSelectedPlatforms([])
+      setSelectedSubreddit('')
+      setRedditTitle('')
       setImprovedContent('')
       setAiSuggestions([])
     } catch (error) {
@@ -273,10 +353,88 @@ export default function PostEditor() {
           )}
         </div>
 
+        {/* Reddit Subreddit Selection */}
+        {selectedPlatforms.includes('reddit') && (
+          <div className="card">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Select Subreddit</h2>
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
+                {subredditSuggestions.map((subreddit) => (
+                  <button
+                    key={subreddit}
+                    type="button"
+                    onClick={() => setSelectedSubreddit(subreddit)}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 ${
+                      selectedSubreddit === subreddit
+                        ? 'bg-red-500 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    r/{subreddit}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  placeholder="Or enter custom subreddit (e.g., r/startups)"
+                  value={selectedSubreddit}
+                  onChange={(e) => setSelectedSubreddit(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                />
+                {selectedSubreddit && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSubreddit('')}
+                    className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              {selectedSubreddit && (
+                <p className="text-sm text-gray-600">
+                  📍 Will post to: <span className="font-medium text-red-600">r/{selectedSubreddit.replace('r/', '')}</span>
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Reddit Title Field */}
+        {selectedPlatforms.includes('reddit') && (
+          <div className="card">
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 mb-3">Reddit Title</h2>
+              <p className="text-sm text-gray-600 mb-3">Create a compelling title for your Reddit post (max 300 characters)</p>
+              <input
+                type="text"
+                placeholder="Enter your Reddit post title..."
+                value={redditTitle}
+                onChange={(e) => setRedditTitle(e.target.value)}
+                maxLength={300}
+                className="input-field w-full"
+              />
+              <div className="flex justify-between items-center mt-2">
+                <div className="text-sm text-gray-500">
+                  {redditTitle.length}/300 characters
+                </div>
+                {redditTitle.length > 250 && (
+                  <div className="text-sm text-orange-600">
+                    ⚠️ Title getting long
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Content Editor */}
         <div className="card">
           <div className="mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">Content</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">
+              {selectedPlatforms.includes('reddit') ? 'Post Content' : 'Content'}
+            </h2>
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <TemplateSelector 
                 onTemplateSelect={handleTemplateSelect}
@@ -313,7 +471,10 @@ export default function PostEditor() {
           <textarea
             {...register('content')}
             rows={6}
-            placeholder="What's on your mind? Write your post content here..."
+            placeholder={selectedPlatforms.includes('reddit') 
+              ? "Write your Reddit post content here... (This will be the body text of your post)"
+              : "What's on your mind? Write your post content here..."
+            }
             className="input-field resize-none"
             value={improvedContent || content}
             onChange={(e) => {

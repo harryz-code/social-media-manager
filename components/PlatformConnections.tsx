@@ -18,10 +18,19 @@ export default function PlatformConnections() {
   useEffect(() => {
     loadConnections()
     validateConnections()
+    
+    // Refresh connections when window gains focus (in case user completed auth in another tab)
+    const handleFocus = () => {
+      loadConnections()
+    }
+    
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
   }, [])
 
   const loadConnections = () => {
     const platformConnections = PlatformService.getConnections()
+    console.log('🔍 Loaded platform connections:', platformConnections)
     setConnections(platformConnections)
     setIsLoading(false)
   }
@@ -62,6 +71,14 @@ export default function PlatformConnections() {
   const handleDisconnect = (platform: string) => {
     if (confirm(`Are you sure you want to disconnect ${platform}?`)) {
       PlatformService.removeConnection(platform)
+      
+      // Also clear localStorage tokens for Reddit
+      if (platform === 'reddit') {
+        localStorage.removeItem('reddit_access_token')
+        localStorage.removeItem('reddit_refresh_token')
+        localStorage.removeItem('reddit_user')
+      }
+      
       loadConnections()
       toast.success(`${platform} disconnected`)
     }
@@ -77,6 +94,15 @@ export default function PlatformConnections() {
     return <CheckCircleIcon className="w-5 h-5 text-green-600" />
   }
 
+  const getPlatformStatus = (platformId: string) => {
+    const connection = connections.find(c => c.platform === platformId)
+    console.log(`🔍 Platform ${platformId} status:`, { connection, isValid: connection?.isValid })
+    if (connection && connection.isValid) {
+      return 'connected'
+    }
+    return 'disconnected'
+  }
+
   const platforms = [
     {
       id: 'linkedin',
@@ -84,8 +110,7 @@ export default function PlatformConnections() {
       icon: '💼',
       description: 'Professional networking and business content',
       features: ['Text posts', 'Professional audience', 'Business analytics', 'Free API'],
-      color: 'border-blue-200 hover:border-blue-300',
-      status: 'active'
+      color: 'border-blue-200 hover:border-blue-300'
     },
     {
       id: 'reddit',
@@ -93,8 +118,7 @@ export default function PlatformConnections() {
       icon: '🤖',
       description: 'Community discussions and content sharing',
       features: ['Text & link posts', 'Subreddit targeting', 'Community engagement', 'Free API'],
-      color: 'border-orange-200 hover:border-orange-300',
-      status: 'active'
+      color: 'border-orange-200 hover:border-orange-300'
     },
     {
       id: 'threads',
@@ -102,8 +126,7 @@ export default function PlatformConnections() {
       icon: '🧵',
       description: 'Instagram\'s text-focused social platform',
       features: ['Text posts', 'Conversational content', 'Instagram integration', 'Free API'],
-      color: 'border-purple-200 hover:border-purple-300',
-      status: 'active'
+      color: 'border-purple-200 hover:border-purple-300'
     },
     {
       id: 'facebook',
@@ -111,8 +134,7 @@ export default function PlatformConnections() {
       icon: '📘',
       description: 'Social networking and community building',
       features: ['Text posts', 'Community engagement', 'Personal & business pages'],
-      color: 'border-blue-200 hover:border-blue-300',
-      status: 'coming-soon'
+      color: 'border-blue-200 hover:border-blue-300'
     },
     {
       id: 'twitter',
@@ -120,8 +142,7 @@ export default function PlatformConnections() {
       icon: '🐦',
       description: 'Real-time social networking',
       features: ['Short-form content', 'Real-time engagement', 'Trending topics'],
-      color: 'border-gray-200 hover:border-gray-300',
-      status: 'coming-soon'
+      color: 'border-gray-200 hover:border-gray-300'
     }
   ]
 
@@ -146,6 +167,7 @@ export default function PlatformConnections() {
         {platforms.map((platform) => {
           const connection = connections.find(c => c.platform === platform.id)
           const isConnected = connection && connection.isValid
+          const platformStatus = getPlatformStatus(platform.id)
 
           return (
             <div key={platform.id} className={`card border-2 ${platform.color} transition-all duration-200`}>

@@ -6,6 +6,7 @@ import { LinkedInAPI } from '@/lib/api/linkedin'
 import { RedditAPI } from '@/lib/api/reddit'
 import { ThreadsAPI } from '@/lib/api/threads'
 import toast from 'react-hot-toast'
+import EnvTest from './EnvTest'
 
 export default function APITester() {
   const [testResults, setTestResults] = useState<Record<string, any>>({})
@@ -26,16 +27,30 @@ export default function APITester() {
       }
 
       let isValid = false
-      switch (platform) {
-        case 'linkedin':
-          isValid = await LinkedInAPI.validateToken(connection.accessToken)
-          break
-        case 'reddit':
-          isValid = await RedditAPI.validateToken(connection.accessToken)
-          break
-        case 'threads':
-          isValid = await ThreadsAPI.validateToken(connection.accessToken)
-          break
+      
+      // Use server-side validation to avoid CORS issues
+      try {
+        const response = await fetch('/api/auth/validate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            platform: connection.platform,
+            accessToken: connection.accessToken
+          }),
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          isValid = data.isValid
+        } else {
+          console.error(`Validation failed for ${platform}:`, response.status)
+          isValid = false
+        }
+      } catch (error) {
+        console.error(`Validation error for ${platform}:`, error)
+        isValid = false
       }
 
       setTestResults(prev => ({
@@ -95,8 +110,11 @@ export default function APITester() {
   }
 
   const handleConnect = (platform: 'linkedin' | 'reddit' | 'threads') => {
+    console.log(`handleConnect called for platform: ${platform}`);
     try {
+      console.log('About to call PlatformService.getAuthUrl...');
       const authUrl = PlatformService.getAuthUrl(platform)
+      console.log('Auth URL received:', authUrl);
       window.open(authUrl, '_blank', 'width=600,height=700,scrollbars=yes,resizable=yes')
       
       // Listen for auth completion
@@ -157,7 +175,10 @@ export default function APITester() {
                   <div className="flex space-x-2">
                     {!isConnected ? (
                       <button
-                        onClick={() => handleConnect(platform as 'linkedin' | 'reddit' | 'threads')}
+                        onClick={() => {
+                          console.log(`Button clicked for ${platform}`);
+                          handleConnect(platform as 'linkedin' | 'reddit' | 'threads');
+                        }}
                         disabled={isTesting}
                         className="text-sm px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded"
                       >
@@ -199,6 +220,11 @@ export default function APITester() {
             </div>
           )})}
         </div>
+      </div>
+
+      <div className="mt-8 card">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Environment Variables Test</h2>
+        <EnvTest />
       </div>
 
       <div className="mt-8 card">

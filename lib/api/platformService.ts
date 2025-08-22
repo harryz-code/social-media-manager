@@ -44,13 +44,60 @@ export class PlatformService {
   static getConnections(): PlatformConnection[] {
     if (typeof window === 'undefined') return []
     
+    const connections: PlatformConnection[] = []
+    
+    // Check for Reddit connection
+    const redditAccessToken = localStorage.getItem('reddit_access_token')
+    const redditUser = localStorage.getItem('reddit_user')
+    
+    if (redditAccessToken && redditUser) {
+      try {
+        const userData = JSON.parse(redditUser)
+        connections.push({
+          platform: 'reddit',
+          accessToken: redditAccessToken,
+          refreshToken: localStorage.getItem('reddit_refresh_token') || undefined,
+          profile: {
+            id: userData.id,
+            name: userData.username,
+            username: userData.username,
+            avatar: userData.avatar
+          },
+          connectedAt: new Date(),
+          isValid: true // We'll validate this separately
+        })
+      } catch (error) {
+        console.error('Error parsing Reddit user data:', error)
+        // Clear invalid data
+        localStorage.removeItem('reddit_access_token')
+        localStorage.removeItem('reddit_refresh_token')
+        localStorage.removeItem('reddit_user')
+      }
+    }
+    
+    // Check for LinkedIn connection (if we implement it)
+    const linkedinAccessToken = localStorage.getItem('linkedin_access_token')
+    if (linkedinAccessToken) {
+      // TODO: Add LinkedIn connection logic
+    }
+    
+    // Also check for any stored connections from the old system
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY)
-      return stored ? JSON.parse(stored) : []
+      const storedConnections = stored ? JSON.parse(stored) : []
+      
+      // Merge with real connections, preferring real ones
+      for (const storedConn of storedConnections) {
+        const existingReal = connections.find(c => c.platform === storedConn.platform)
+        if (!existingReal) {
+          connections.push(storedConn)
+        }
+      }
     } catch (error) {
-      console.error('Error loading platform connections:', error)
-      return []
+      console.error('Error loading stored platform connections:', error)
     }
+    
+    return connections
   }
 
   static getConnection(platform: string): PlatformConnection | null {
@@ -65,9 +112,14 @@ export class PlatformService {
 
   // Authentication
   static getAuthUrl(platform: 'linkedin' | 'reddit' | 'threads'): string {
+    console.log(`PlatformService.getAuthUrl called for: ${platform}`);
+    
     switch (platform) {
       case 'linkedin':
-        return LinkedInAPI.getAuthUrl()
+        console.log('Calling LinkedInAPI.getAuthUrl()');
+        const linkedInUrl = LinkedInAPI.getAuthUrl();
+        console.log('LinkedIn URL returned:', linkedInUrl);
+        return linkedInUrl;
       case 'reddit':
         return RedditAPI.getAuthUrl()
       case 'threads':
@@ -238,16 +290,24 @@ export class PlatformService {
       let isValid = false
 
       try {
-        switch (connection.platform) {
-          case 'linkedin':
-            isValid = await LinkedInAPI.validateToken(connection.accessToken)
-            break
-          case 'reddit':
-            isValid = await RedditAPI.validateToken(connection.accessToken)
-            break
-          case 'threads':
-            isValid = await ThreadsAPI.validateToken(connection.accessToken)
-            break
+        // Use server-side validation to avoid CORS issues
+        const response = await fetch('/api/auth/validate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            platform: connection.platform,
+            accessToken: connection.accessToken
+          }),
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          isValid = data.isValid
+        } else {
+          console.error(`Validation failed for ${connection.platform}:`, response.status)
+          isValid = false
         }
       } catch (error) {
         console.error(`Validation error for ${connection.platform}:`, error)
@@ -257,6 +317,14 @@ export class PlatformService {
       if (connection.isValid !== isValid) {
         connection.isValid = isValid
         hasChanges = true
+        
+        // Clear expired tokens
+        if (!isValid && connection.platform === 'reddit') {
+          console.log('🔍 Clearing expired Reddit tokens')
+          localStorage.removeItem('reddit_access_token')
+          localStorage.removeItem('reddit_refresh_token')
+          localStorage.removeItem('reddit_user')
+        }
       }
     }
 
