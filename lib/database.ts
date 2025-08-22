@@ -6,6 +6,9 @@ export class DatabaseService {
 
   // User Profile
   static async createUserProfile(userId: string, profile: any) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('user_profiles')
       .insert([{ user_id: userId, ...profile }])
@@ -17,6 +20,9 @@ export class DatabaseService {
   }
 
   static async getUserProfile(userId: string) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('user_profiles')
       .select('*')
@@ -28,6 +34,9 @@ export class DatabaseService {
   }
 
   static async updateUserProfile(userId: string, updates: any) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('user_profiles')
       .update(updates)
@@ -41,6 +50,9 @@ export class DatabaseService {
 
   // Posts
   static async createPost(userId: string, post: Omit<Post, 'id' | 'createdAt' | 'updatedAt'>) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('posts')
       .insert([{ user_id: userId, ...post }])
@@ -52,6 +64,9 @@ export class DatabaseService {
   }
 
   static async getUserPosts(userId: string) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('posts')
       .select('*')
@@ -63,6 +78,9 @@ export class DatabaseService {
   }
 
   static async updatePost(postId: string, updates: Partial<Post>) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('posts')
       .update(updates)
@@ -75,6 +93,9 @@ export class DatabaseService {
   }
 
   static async deletePost(postId: string) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { error } = await this.supabase
       .from('posts')
       .delete()
@@ -85,6 +106,9 @@ export class DatabaseService {
 
   // Platform Connections
   static async savePlatformConnection(userId: string, connection: any) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('platform_connections')
       .upsert([{ user_id: userId, ...connection }])
@@ -96,6 +120,9 @@ export class DatabaseService {
   }
 
   static async getUserPlatformConnections(userId: string) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('platform_connections')
       .select('*')
@@ -106,6 +133,9 @@ export class DatabaseService {
   }
 
   static async deletePlatformConnection(userId: string, platformId: string) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { error } = await this.supabase
       .from('platform_connections')
       .delete()
@@ -117,6 +147,9 @@ export class DatabaseService {
 
   // Analytics
   static async saveAnalytics(userId: string, analytics: Analytics) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('analytics')
       .upsert([{ user_id: userId, ...analytics }])
@@ -128,6 +161,9 @@ export class DatabaseService {
   }
 
   static async getUserAnalytics(userId: string, timeRange: string = '30d') {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('analytics')
       .select('*')
@@ -141,6 +177,9 @@ export class DatabaseService {
 
   // Collaboration
   static async createCollaboration(userId: string, collaboration: any) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('collaborations')
       .insert([{ user_id: userId, ...collaboration }])
@@ -152,6 +191,9 @@ export class DatabaseService {
   }
 
   static async getPostCollaborations(postId: string) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('collaborations')
       .select('*')
@@ -163,6 +205,9 @@ export class DatabaseService {
 
   // Todos
   static async createTodo(userId: string, todo: Omit<Todo, 'id' | 'createdAt'>) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('todos')
       .insert([{ user_id: userId, ...todo }])
@@ -174,6 +219,9 @@ export class DatabaseService {
   }
 
   static async getUserTodos(userId: string) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('todos')
       .select('*')
@@ -185,6 +233,9 @@ export class DatabaseService {
   }
 
   static async updateTodo(todoId: string, updates: Partial<Todo>) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('todos')
       .update(updates)
@@ -197,6 +248,9 @@ export class DatabaseService {
   }
 
   static async deleteTodo(todoId: string) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { error } = await this.supabase
       .from('todos')
       .delete()
@@ -207,6 +261,9 @@ export class DatabaseService {
 
   // Settings
   static async saveUserSettings(userId: string, settings: any) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('user_settings')
       .upsert([{ user_id: userId, ...settings }])
@@ -218,6 +275,9 @@ export class DatabaseService {
   }
 
   static async getUserSettings(userId: string) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase
       .from('user_settings')
       .select('*')

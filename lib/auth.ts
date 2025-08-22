@@ -14,6 +14,9 @@ export class AuthService {
 
   // Email/Password Authentication
   static async signUp(email: string, password: string, name?: string) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase.auth.signUp({
       email,
       password,
@@ -29,6 +32,9 @@ export class AuthService {
   }
 
   static async signIn(email: string, password: string) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase.auth.signInWithPassword({
       email,
       password,
@@ -40,6 +46,9 @@ export class AuthService {
 
   // Google OAuth
   static async signInWithGoogle() {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -53,6 +62,9 @@ export class AuthService {
 
   // LinkedIn OAuth
   static async signInWithLinkedIn() {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await this.supabase.auth.signInWithOAuth({
       provider: 'linkedin',
       options: {
@@ -66,12 +78,18 @@ export class AuthService {
 
   // Sign Out
   static async signOut() {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { error } = await this.supabase.auth.signOut()
     if (error) throw error
   }
 
   // Get Current User
   static async getCurrentUser(): Promise<AuthUser | null> {
+    if (!this.supabase) {
+      return null
+    }
     const { data: { user }, error } = await this.supabase.auth.getUser()
     
     if (error || !user) return null
@@ -87,6 +105,9 @@ export class AuthService {
 
   // Get Session
   static async getSession() {
+    if (!this.supabase) {
+      return null
+    }
     const { data: { session }, error } = await this.supabase.auth.getSession()
     if (error) throw error
     return session
@@ -94,11 +115,17 @@ export class AuthService {
 
   // Listen to Auth Changes
   static onAuthStateChange(callback: (event: string, session: any) => void) {
+    if (!this.supabase) {
+      return { data: { subscription: null } }
+    }
     return this.supabase.auth.onAuthStateChange(callback)
   }
 
   // Reset Password
   static async resetPassword(email: string) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth/reset-password`
     })
@@ -107,6 +134,9 @@ export class AuthService {
 
   // Update Password
   static async updatePassword(password: string) {
+    if (!this.supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { error } = await this.supabase.auth.updateUser({
       password
     })
