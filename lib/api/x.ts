@@ -58,6 +58,10 @@ export class XAPI {
       code_challenge_method: 'S256'
     })
 
+    // Log the full URL for debugging
+    const fullUrl = `${this.AUTH_BASE}?${params.toString()}`
+    console.log('🔗 Full X OAuth URL:', fullUrl)
+
     console.log('🔗 X OAuth URL generated (v2):', {
       clientId: config.clientId ? '✅ Set' : '❌ Missing',
       redirectUri: config.redirectUri,
@@ -65,7 +69,7 @@ export class XAPI {
       encodedRedirectUri: redirectUri
     })
 
-    return `${this.AUTH_BASE}?${params.toString()}`
+    return fullUrl
   }
 
   static async exchangeCodeForToken(code: string, codeVerifier: string): Promise<{
