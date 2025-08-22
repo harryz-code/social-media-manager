@@ -178,7 +178,7 @@ export default function APITester() {
                       <button
                         onClick={() => {
                           console.log(`Button clicked for ${platform}`);
-                          handleConnect(platform as 'linkedin' | 'reddit' | 'threads' | 'x');
+                          handleConnect(platform as 'linkedin' | 'reddit' | 'threads' | 'x' | 'facebook' | 'instagram' | 'youtube' | 'tiktok' | 'weibo');
                         }}
                         disabled={isTesting}
                         className="text-sm px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded"
