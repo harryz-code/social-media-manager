@@ -58,7 +58,7 @@ export class XAPI {
       code_challenge_method: 'S256'
     })
 
-    console.log('🔗 X OAuth URL generated:', {
+    console.log('🔗 X OAuth URL generated (v2):', {
       clientId: config.clientId ? '✅ Set' : '❌ Missing',
       redirectUri: config.redirectUri,
       scope: config.scope,
