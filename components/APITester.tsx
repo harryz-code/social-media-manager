@@ -84,7 +84,7 @@ export default function APITester() {
 
   const testAllConnections = async () => {
     setIsTesting(true)
-    const platforms = ['linkedin', 'reddit', 'threads', 'x']
+    const platforms = ['linkedin', 'reddit', 'threads', 'x', 'facebook', 'instagram', 'youtube', 'tiktok', 'weibo']
     
     for (const platform of platforms) {
       await testPlatformConnection(platform)
@@ -110,7 +110,7 @@ export default function APITester() {
     }
   }
 
-  const handleConnect = (platform: 'linkedin' | 'reddit' | 'threads' | 'x') => {
+  const handleConnect = (platform: 'linkedin' | 'reddit' | 'threads' | 'x' | 'facebook' | 'instagram' | 'youtube' | 'tiktok' | 'weibo') => {
     console.log(`handleConnect called for platform: ${platform}`);
     try {
       console.log('About to call PlatformService.getAuthUrl...');
@@ -165,7 +165,7 @@ export default function APITester() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {['linkedin', 'reddit', 'threads', 'x'].map((platform) => {
+          {['linkedin', 'reddit', 'threads', 'x', 'facebook', 'instagram', 'youtube', 'tiktok', 'weibo'].map((platform) => {
             const connection = PlatformService.getConnection(platform)
             const isConnected = connection && connection.isValid
             

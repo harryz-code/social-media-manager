@@ -37,13 +37,16 @@ export class XAPI {
       clientId: process.env.NEXT_PUBLIC_X_CLIENT_ID || '',
       clientSecret: process.env.X_CLIENT_SECRET || '',
       redirectUri: process.env.NEXT_PUBLIC_X_REDIRECT_URI || 'http://localhost:3000/auth/x/callback',
-      scope: ['tweet.read', 'tweet.write', 'users.read', 'offline.access']
+      scope: ['tweet.read', 'tweet.write', 'users.read']
     }
   }
 
   static getAuthUrl(): string {
     const config = this.getAuthConfig()
     const state = this.generateState()
+    
+    // Ensure redirect URI is properly encoded
+    const redirectUri = encodeURIComponent(config.redirectUri)
     
     const params = new URLSearchParams({
       response_type: 'code',
@@ -58,7 +61,8 @@ export class XAPI {
     console.log('🔗 X OAuth URL generated:', {
       clientId: config.clientId ? '✅ Set' : '❌ Missing',
       redirectUri: config.redirectUri,
-      scope: config.scope
+      scope: config.scope,
+      encodedRedirectUri: redirectUri
     })
 
     return `${this.AUTH_BASE}?${params.toString()}`
