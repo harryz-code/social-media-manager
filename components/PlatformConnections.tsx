@@ -137,8 +137,8 @@ export default function PlatformConnections() {
       color: 'border-blue-200 hover:border-blue-300'
     },
     {
-      id: 'twitter',
-      name: 'Twitter/X',
+      id: 'x',
+      name: 'X (Twitter)',
       icon: '🐦',
       description: 'Real-time social networking',
       features: ['Short-form content', 'Real-time engagement', 'Trending topics'],

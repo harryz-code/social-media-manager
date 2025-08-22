@@ -86,6 +86,12 @@ export default function PostEditor() {
         return content
           .replace(/\n/g, '\n') // Single line breaks
           .replace(/#(\w+)/g, ' #$1') // Hashtags
+      case 'x':
+        // X prefers concise content with hashtags
+        return content
+          .replace(/\n{3,}/g, '\n\n') // Max 2 consecutive line breaks
+          .replace(/#(\w+)/g, ' #$1') // Ensure hashtags have space before them
+          .substring(0, 280) // X character limit
       default:
         return content
     }
@@ -111,6 +117,12 @@ export default function PostEditor() {
       suggestions.push('🧵 Keep it conversational')
       suggestions.push('📱 Use emojis naturally')
       suggestions.push('🔥 Follow trending topics')
+    }
+    
+    if (selectedPlatforms.includes('x')) {
+      suggestions.push('🐦 Keep it under 280 characters')
+      suggestions.push('📱 Use hashtags strategically')
+      suggestions.push('⚡ Be concise and engaging')
     }
     
     return suggestions
@@ -150,6 +162,7 @@ export default function PostEditor() {
     if (selectedPlatforms.includes('threads')) return 500
     if (selectedPlatforms.includes('linkedin')) return 3000
     if (selectedPlatforms.includes('reddit')) return 40000
+    if (selectedPlatforms.includes('x')) return 280
     return 280 // Default
   }
   
@@ -247,6 +260,49 @@ export default function PostEditor() {
         } catch (error) {
           console.error('Reddit posting error:', error)
           toast.error(`Failed to post to Reddit: ${error instanceof Error ? error.message : 'Unknown error'}`)
+          return
+        }
+      }
+
+      // Handle X posting if selected
+      if (selectedPlatforms.includes('x')) {
+        const accessToken = localStorage.getItem('x_access_token')
+        if (!accessToken) {
+          toast.error('Please connect your X account first')
+          return
+        }
+        
+        try {
+          // Post to X
+          const xContent = formatContentForPlatform(formattedContent, 'x')
+          
+          console.log('🔄 Posting to X:', { content: xContent.substring(0, 100) + '...' })
+          
+          // Actually post to X via server-side API
+          const response = await fetch('/api/posts/x', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              text: xContent,
+              accessToken
+            }),
+          })
+
+          if (!response.ok) {
+            const errorData = await response.json()
+            throw new Error(errorData.error || 'Failed to post to X')
+          }
+
+          const result = await response.json()
+          console.log('✅ X post successful:', result)
+          
+          toast.success(`Posted to X successfully!`)
+          
+        } catch (error) {
+          console.error('X posting error:', error)
+          toast.error(`Failed to post to X: ${error instanceof Error ? error.message : 'Unknown error'}`)
           return
         }
       }
@@ -511,6 +567,9 @@ export default function PostEditor() {
                 )}
                 {selectedPlatforms.includes('threads') && (
                   <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">Threads: 500</span>
+                )}
+                {selectedPlatforms.includes('x') && (
+                  <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded">X: 280</span>
                 )}
               </div>
               <div className={`text-sm ${

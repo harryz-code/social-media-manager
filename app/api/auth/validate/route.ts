@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { RedditAPI } from '@/lib/api/reddit'
+import { XAPI } from '@/lib/api/x'
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +20,9 @@ export async function POST(request: NextRequest) {
     switch (platform) {
       case 'reddit':
         isValid = await RedditAPI.validateToken(accessToken)
+        break
+      case 'x':
+        isValid = await XAPI.validateToken(accessToken)
         break
       // Add other platforms as needed
       default:

@@ -1,10 +1,11 @@
 import { LinkedInAPI } from './linkedin'
 import { RedditAPI } from './reddit'
 import { ThreadsAPI } from './threads'
+import { XAPI } from './x'
 import { Post } from '../types'
 
 export interface PlatformConnection {
-  platform: 'linkedin' | 'reddit' | 'threads' | 'twitter'
+  platform: 'linkedin' | 'reddit' | 'threads' | 'x'
   accessToken: string
   refreshToken?: string
   profile: {
@@ -81,6 +82,35 @@ export class PlatformService {
       // TODO: Add LinkedIn connection logic
     }
     
+    // Check for X connection
+    const xAccessToken = localStorage.getItem('x_access_token')
+    const xUser = localStorage.getItem('x_user')
+    
+    if (xAccessToken && xUser) {
+      try {
+        const userData = JSON.parse(xUser)
+        connections.push({
+          platform: 'x',
+          accessToken: xAccessToken,
+          refreshToken: localStorage.getItem('x_refresh_token') || undefined,
+          profile: {
+            id: userData.id,
+            name: userData.name,
+            username: userData.username,
+            avatar: userData.profile_image_url
+          },
+          connectedAt: new Date(),
+          isValid: true // We'll validate this separately
+        })
+      } catch (error) {
+        console.error('Error parsing X user data:', error)
+        // Clear invalid data
+        localStorage.removeItem('x_access_token')
+        localStorage.removeItem('x_refresh_token')
+        localStorage.removeItem('x_user')
+      }
+    }
+    
     // Also check for any stored connections from the old system
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY)
@@ -111,7 +141,7 @@ export class PlatformService {
   }
 
   // Authentication
-  static getAuthUrl(platform: 'linkedin' | 'reddit' | 'threads'): string {
+  static getAuthUrl(platform: 'linkedin' | 'reddit' | 'threads' | 'x'): string {
     console.log(`PlatformService.getAuthUrl called for: ${platform}`);
     
     switch (platform) {
@@ -124,12 +154,14 @@ export class PlatformService {
         return RedditAPI.getAuthUrl()
       case 'threads':
         return ThreadsAPI.getAuthUrl()
+      case 'x':
+        return XAPI.getAuthUrl()
       default:
         throw new Error(`Unsupported platform: ${platform}`)
     }
   }
 
-  static async handleAuthCallback(platform: 'linkedin' | 'reddit' | 'threads', code: string): Promise<PlatformConnection> {
+  static async handleAuthCallback(platform: 'linkedin' | 'reddit' | 'threads' | 'x', code: string): Promise<PlatformConnection> {
     try {
       switch (platform) {
         case 'linkedin': {
@@ -196,6 +228,30 @@ export class PlatformService {
           return connection
         }
 
+        case 'x': {
+          // For X, we need to handle PKCE code verifier
+          const codeVerifier = 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM' // In production, store this securely
+          const { accessToken, refreshToken } = await XAPI.exchangeCodeForToken(code, codeVerifier)
+          const profile = await XAPI.getProfile(accessToken)
+          
+          const connection: PlatformConnection = {
+            platform: 'x',
+            accessToken,
+            refreshToken,
+            profile: {
+              id: profile.id,
+              name: profile.name,
+              username: profile.username,
+              avatar: profile.profile_image_url
+            },
+            connectedAt: new Date(),
+            isValid: true
+          }
+          
+          this.saveConnection(connection)
+          return connection
+        }
+
         default:
           throw new Error(`Unsupported platform: ${platform}`)
       }
@@ -250,6 +306,13 @@ export class PlatformService {
           case 'threads': {
             const formattedContent = ThreadsAPI.formatContent(post.content)
             postId = await ThreadsAPI.createPost(connection.accessToken, formattedContent)
+            break
+          }
+
+          case 'x': {
+            const formattedContent = XAPI.formatContentForX(post.content)
+            const tweet = await XAPI.postTweet(connection.accessToken, formattedContent)
+            postId = tweet.id
             break
           }
 
@@ -325,6 +388,12 @@ export class PlatformService {
           localStorage.removeItem('reddit_refresh_token')
           localStorage.removeItem('reddit_user')
         }
+        if (!isValid && connection.platform === 'x') {
+          console.log('🔍 Clearing expired X tokens')
+          localStorage.removeItem('x_access_token')
+          localStorage.removeItem('x_refresh_token')
+          localStorage.removeItem('x_user')
+        }
       }
     }
 
@@ -349,6 +418,9 @@ export class PlatformService {
           return null
         case 'threads':
           // Threads analytics not available via API yet
+          return null
+        case 'x':
+          // X analytics not available via API yet
           return null
         default:
           throw new Error(`Analytics not supported for platform: ${platform}`)
