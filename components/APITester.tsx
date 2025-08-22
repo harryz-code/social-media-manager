@@ -5,6 +5,7 @@ import { PlatformService } from '@/lib/api/platformService'
 import { LinkedInAPI } from '@/lib/api/linkedin'
 import { RedditAPI } from '@/lib/api/reddit'
 import { ThreadsAPI } from '@/lib/api/threads'
+import { XAPI } from '@/lib/api/x'
 import toast from 'react-hot-toast'
 import EnvTest from './EnvTest'
 
@@ -83,7 +84,7 @@ export default function APITester() {
 
   const testAllConnections = async () => {
     setIsTesting(true)
-    const platforms = ['linkedin', 'reddit', 'threads']
+    const platforms = ['linkedin', 'reddit', 'threads', 'x']
     
     for (const platform of platforms) {
       await testPlatformConnection(platform)
@@ -109,7 +110,7 @@ export default function APITester() {
     }
   }
 
-  const handleConnect = (platform: 'linkedin' | 'reddit' | 'threads') => {
+  const handleConnect = (platform: 'linkedin' | 'reddit' | 'threads' | 'x') => {
     console.log(`handleConnect called for platform: ${platform}`);
     try {
       console.log('About to call PlatformService.getAuthUrl...');
@@ -164,7 +165,7 @@ export default function APITester() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {['linkedin', 'reddit', 'threads'].map((platform) => {
+          {['linkedin', 'reddit', 'threads', 'x'].map((platform) => {
             const connection = PlatformService.getConnection(platform)
             const isConnected = connection && connection.isValid
             
@@ -177,7 +178,7 @@ export default function APITester() {
                       <button
                         onClick={() => {
                           console.log(`Button clicked for ${platform}`);
-                          handleConnect(platform as 'linkedin' | 'reddit' | 'threads');
+                          handleConnect(platform as 'linkedin' | 'reddit' | 'threads' | 'x');
                         }}
                         disabled={isTesting}
                         className="text-sm px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded"
