@@ -5,7 +5,7 @@ import { XAPI } from './x'
 import { Post } from '../types'
 
 export interface PlatformConnection {
-  platform: 'linkedin' | 'reddit' | 'threads' | 'x'
+  platform: 'linkedin' | 'reddit' | 'threads' | 'x' | 'facebook' | 'instagram' | 'youtube' | 'tiktok' | 'weibo'
   accessToken: string
   refreshToken?: string
   profile: {
@@ -141,7 +141,7 @@ export class PlatformService {
   }
 
   // Authentication
-  static getAuthUrl(platform: 'linkedin' | 'reddit' | 'threads' | 'x'): string {
+  static getAuthUrl(platform: 'linkedin' | 'reddit' | 'threads' | 'x' | 'facebook' | 'instagram' | 'youtube' | 'tiktok' | 'weibo'): string {
     console.log(`PlatformService.getAuthUrl called for: ${platform}`);
     
     switch (platform) {
@@ -156,12 +156,19 @@ export class PlatformService {
         return ThreadsAPI.getAuthUrl()
       case 'x':
         return XAPI.getAuthUrl()
+      case 'facebook':
+      case 'instagram':
+      case 'youtube':
+      case 'tiktok':
+      case 'weibo':
+        // These platforms are not yet implemented
+        throw new Error(`${platform} integration not yet implemented`)
       default:
         throw new Error(`Unsupported platform: ${platform}`)
     }
   }
 
-  static async handleAuthCallback(platform: 'linkedin' | 'reddit' | 'threads' | 'x', code: string): Promise<PlatformConnection> {
+  static async handleAuthCallback(platform: 'linkedin' | 'reddit' | 'threads' | 'x' | 'facebook' | 'instagram' | 'youtube' | 'tiktok' | 'weibo', code: string): Promise<PlatformConnection> {
     try {
       switch (platform) {
         case 'linkedin': {
