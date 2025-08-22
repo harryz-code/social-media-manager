@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'react-hot-toast'
 
-export default function XCallbackPage() {
+function XCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const hasProcessedRef = useRef(false)
@@ -91,5 +91,17 @@ export default function XCallbackPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function XCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+    }>
+      <XCallbackContent />
+    </Suspense>
   )
 }

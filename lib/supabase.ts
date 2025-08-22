@@ -1,14 +1,23 @@
 import { createBrowserClient } from '@supabase/ssr'
 import { createServerClient } from '@supabase/ssr'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 export function createClient() {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.warn('Supabase not configured - returning null client')
+    return null
+  }
   return createBrowserClient(supabaseUrl, supabaseAnonKey)
 }
 
 export function createServerSupabaseClient() {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.warn('Supabase not configured - returning null client')
+    return null
+  }
+  
   // Only import cookies when this function is called (server-side)
   const { cookies } = require('next/headers')
   const cookieStore = cookies()
