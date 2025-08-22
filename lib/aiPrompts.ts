@@ -85,8 +85,8 @@ export const aiPrompts: AIPrompt[] = [
   },
   {
     id: 'personal-3',
-    title: 'What You're Currently Learning',
-    description: 'Share something you're actively learning',
+    title: 'What You\'re Currently Learning',
+    description: 'Share something you\'re actively learning',
     prompt: 'What are you currently learning or studying? Share your progress, challenges, and insights from the learning process.',
     category: 'educational',
     tags: ['learning', 'growth', 'progress'],
@@ -111,7 +111,7 @@ export const aiPrompts: AIPrompt[] = [
     id: 'tips-2',
     title: 'How-To Guide',
     description: 'Create a step-by-step guide for something you know well',
-    prompt: 'Create a step-by-step guide for something you're knowledgeable about. Break it down into simple, actionable steps.',
+    prompt: 'Create a step-by-step guide for something you\'re knowledgeable about. Break it down into simple, actionable steps.',
     category: 'educational',
     tags: ['how-to', 'guide', 'tutorial'],
     platforms: ['linkedin', 'threads', 'reddit'],
@@ -122,7 +122,7 @@ export const aiPrompts: AIPrompt[] = [
     id: 'tips-3',
     title: 'Common Mistake to Avoid',
     description: 'Warn others about a common mistake',
-    prompt: 'What's a common mistake people make in your field that you want to warn others about? Explain why it's problematic and how to avoid it.',
+    prompt: 'What\'s a common mistake people make in your field that you want to warn others about? Explain why it\'s problematic and how to avoid it.',
     category: 'tips-advice',
     tags: ['mistakes', 'advice', 'warnings'],
     platforms: ['linkedin', 'threads'],
@@ -156,7 +156,7 @@ export const aiPrompts: AIPrompt[] = [
   {
     id: 'engagement-3',
     title: 'Share and Ask',
-    description: 'Share something and ask for others' experiences',
+    description: 'Share something and ask for others\' experiences',
     prompt: 'Share an experience, observation, or insight, then ask your audience to share their own similar experiences.',
     category: 'engagement',
     tags: ['share', 'ask', 'community'],
@@ -181,7 +181,7 @@ export const aiPrompts: AIPrompt[] = [
     id: 'achievements-2',
     title: 'Milestone Reflection',
     description: 'Reflect on reaching an important milestone',
-    prompt: 'You've reached an important milestone. Reflect on the journey, the challenges overcome, and what's next.',
+    prompt: 'You\'ve reached an important milestone. Reflect on the journey, the challenges overcome, and what\'s next.',
     category: 'achievements',
     tags: ['milestone', 'reflection', 'journey'],
     platforms: ['linkedin', 'threads'],
@@ -204,7 +204,7 @@ export const aiPrompts: AIPrompt[] = [
   {
     id: 'thought-leadership-2',
     title: 'Future Prediction',
-    description: 'Make a prediction about your industry's future',
+    description: 'Make a prediction about your industry\'s future',
     prompt: 'Make a prediction about where your industry is heading. What changes do you see coming? What should people prepare for?',
     category: 'thought-leadership',
     tags: ['prediction', 'future', 'industry'],
@@ -218,7 +218,7 @@ export const aiPrompts: AIPrompt[] = [
     id: 'trending-1',
     title: 'React to Current News',
     description: 'Share your take on current industry news',
-    prompt: 'React to a current news story or development in your industry. What's your perspective? What does it mean for the future?',
+    prompt: 'React to a current news story or development in your industry. What\'s your perspective? What does it mean for the future?',
     category: 'trending',
     tags: ['news', 'current-events', 'reaction'],
     platforms: ['linkedin', 'threads'],
@@ -229,7 +229,7 @@ export const aiPrompts: AIPrompt[] = [
     id: 'trending-2',
     title: 'Trend Analysis',
     description: 'Analyze a current trend in your field',
-    prompt: 'Analyze a current trend in your field. What's driving it? Is it here to stay? What should people know about it?',
+    prompt: 'Analyze a current trend in your field. What\'s driving it? Is it here to stay? What should people know about it?',
     category: 'trending',
     tags: ['trends', 'analysis', 'insights'],
     platforms: ['linkedin', 'threads'],
@@ -293,12 +293,13 @@ export class AIPromptService {
   }
 
   static getCategories(): PromptCategory[] {
-    return [...new Set(aiPrompts.map(prompt => prompt.category))]
+    const categories = aiPrompts.map(prompt => prompt.category)
+    return Array.from(new Set(categories))
   }
 
   static getTags(): string[] {
     const allTags = aiPrompts.flatMap(prompt => prompt.tags)
-    return [...new Set(allTags)]
+    return Array.from(new Set(allTags))
   }
 
   static searchPrompts(query: string): AIPrompt[] {

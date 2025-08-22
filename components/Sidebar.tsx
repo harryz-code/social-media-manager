@@ -21,7 +21,7 @@ import {
   Squares2X2Icon as Squares2X2IconSolid
 } from '@heroicons/react/24/solid'
 
-type ActiveTab = 'dashboard' | 'compose' | 'calendar' | 'bulk' | 'analytics' | 'settings' | 'todos'
+type ActiveTab = 'dashboard' | 'compose' | 'calendar' | 'bulk' | 'analytics' | 'api-tester' | 'settings' | 'todos'
 
 interface SidebarProps {
   activeTab: ActiveTab

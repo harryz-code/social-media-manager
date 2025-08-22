@@ -75,3 +75,25 @@ export interface AISuggestion {
   confidence: number
   applied: boolean
 }
+
+export interface Collaboration {
+  id: string
+  postId: string
+  userId: string
+  type: 'comment' | 'suggestion' | 'approval'
+  content: string
+  createdAt: Date
+  status: 'pending' | 'approved' | 'rejected'
+}
+
+export interface Todo {
+  id: string
+  userId: string
+  title: string
+  description?: string
+  completed: boolean
+  priority: 'low' | 'medium' | 'high'
+  dueDate?: Date
+  createdAt: Date
+  updatedAt: Date
+}

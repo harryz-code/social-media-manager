@@ -125,7 +125,8 @@ export const samplePlatforms: Platform[] = [
     icon: '💼',
     color: 'text-linkedin',
     connected: true,
-    followers: '8.2k'
+    followers: '8.2k',
+    type: 'text'
   },
   {
     id: 'instagram',
@@ -133,7 +134,8 @@ export const samplePlatforms: Platform[] = [
     icon: '📷',
     color: 'text-instagram',
     connected: true,
-    followers: '4.1k'
+    followers: '4.1k',
+    type: 'visual'
   },
   {
     id: 'youtube',
@@ -141,14 +143,16 @@ export const samplePlatforms: Platform[] = [
     icon: '📺',
     color: 'text-youtube',
     connected: true,
-    followers: '2.3k'
+    followers: '2.3k',
+    type: 'video'
   },
   {
     id: 'reddit',
     name: 'Reddit',
     icon: '🤖',
     color: 'text-reddit',
-    connected: false
+    connected: false,
+    type: 'text'
   }
 ]
 

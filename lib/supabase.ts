@@ -1,6 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr'
 import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -10,6 +9,8 @@ export function createClient() {
 }
 
 export function createServerSupabaseClient() {
+  // Only import cookies when this function is called (server-side)
+  const { cookies } = require('next/headers')
   const cookieStore = cookies()
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {

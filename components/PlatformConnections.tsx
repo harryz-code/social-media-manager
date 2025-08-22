@@ -44,7 +44,7 @@ export default function PlatformConnections() {
     }
   }
 
-  const handleConnect = (platform: 'linkedin' | 'reddit') => {
+  const handleConnect = (platform: 'linkedin' | 'reddit' | 'threads' | 'x') => {
     try {
       const authUrl = PlatformService.getAuthUrl(platform)
       window.open(authUrl, '_blank', 'width=600,height=700,scrollbars=yes,resizable=yes')
@@ -187,13 +187,13 @@ export default function PlatformConnections() {
                   </div>
                 </div>
                 
-                {platform.status === 'coming-soon' && (
-                  <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
-                    Coming Soon
+                {platformStatus === 'connected' && (
+                  <span className="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">
+                    Connected
                   </span>
                 )}
-                {platform.status === 'active' && (
-                  <span className="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">
+                {platformStatus === 'disconnected' && (
+                  <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
                     Available
                   </span>
                 )}
@@ -231,14 +231,7 @@ export default function PlatformConnections() {
 
               {/* Actions */}
               <div className="flex space-x-2">
-                {platform.status === 'coming-soon' ? (
-                  <button
-                    disabled
-                    className="flex-1 px-4 py-2 bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed"
-                  >
-                    Coming Soon
-                  </button>
-                ) : isConnected ? (
+                {platformStatus === 'connected' ? (
                   <>
                     <button
                       onClick={() => validateConnections()}
@@ -256,7 +249,7 @@ export default function PlatformConnections() {
                   </>
                 ) : (
                   <button
-                    onClick={() => handleConnect(platform.id as 'linkedin' | 'reddit' | 'threads')}
+                    onClick={() => handleConnect(platform.id as 'linkedin' | 'reddit' | 'threads' | 'x')}
                     className="flex-1 btn-primary flex items-center justify-center space-x-2"
                   >
                     <LinkIcon className="w-4 h-4" />
