@@ -34,7 +34,18 @@ export async function POST(request: NextRequest) {
       throw new Error('No authorization code received')
     }
     
-    const tokens = await RedditAPI.exchangeCodeForToken(code)
+    console.log('🔄 About to call RedditAPI.exchangeCodeForToken...')
+    
+    // Test if RedditAPI is working
+    try {
+      const tokens = await RedditAPI.exchangeCodeForToken(code)
+      console.log('✅ RedditAPI.exchangeCodeForToken succeeded')
+    } catch (redditError) {
+      console.error('❌ RedditAPI.exchangeCodeForToken failed:', redditError)
+      console.error('❌ Error message:', redditError instanceof Error ? redditError.message : 'Unknown error')
+      console.error('❌ Error stack:', redditError instanceof Error ? redditError.stack : 'No stack')
+      throw redditError
+    }
     
     console.log('✅ Token exchange successful:')
     console.log('  - Access Token:', tokens.accessToken.substring(0, 20) + '...')
