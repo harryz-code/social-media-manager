@@ -88,6 +88,9 @@ export class RedditAPI {
       
       const auth = btoa(`${config.clientId}:${config.clientSecret}`)
       console.log('  - Auth header:', `Basic ${auth.substring(0, 20)}...`)
+      console.log('  - Full auth string (for debugging):', `${config.clientId}:${config.clientSecret}`)
+      console.log('  - Client ID length:', config.clientId.length)
+      console.log('  - Client Secret length:', config.clientSecret.length)
       
       const requestBody = new URLSearchParams({
         grant_type: 'authorization_code',
