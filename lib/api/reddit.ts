@@ -47,7 +47,7 @@ export class RedditAPI {
       clientId: process.env.NEXT_PUBLIC_REDDIT_CLIENT_ID || '',
       clientSecret: process.env.REDDIT_CLIENT_SECRET || '',
       redirectUri: process.env.NEXT_PUBLIC_REDDIT_REDIRECT_URI || 'http://localhost:3000/auth/reddit/callback',
-      userAgent: 'PostGenius/1.0.0 by PostGenius'
+      userAgent: 'PostGenius/1.0.0 (by /u/Careful-Tonight5560)'
     }
   }
 
@@ -64,7 +64,7 @@ export class RedditAPI {
       state: Math.random().toString(36).substring(7),
       redirect_uri: config.redirectUri,
       duration: 'permanent',
-      scope: 'identity read submit edit history'
+      scope: 'identity'
     })
 
     const authUrl = `${this.BASE_URL}/authorize?${params.toString()}`
