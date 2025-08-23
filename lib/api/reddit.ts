@@ -72,12 +72,17 @@ export class RedditAPI {
 
   static async exchangeCodeForToken(code: string): Promise<{ accessToken: string; refreshToken: string }> {
     try {
-      const auth = btoa(`${this.config.clientId}:${this.config.clientSecret}`)
-      
       console.log('🔍 Reddit token exchange debug:')
       console.log('  - Client ID:', this.config.clientId)
+      console.log('  - Client Secret:', this.config.clientSecret ? 'Set' : 'Missing')
       console.log('  - Redirect URI:', this.config.redirectUri)
       console.log('  - Code length:', code.length)
+      
+      if (!this.config.clientId || !this.config.clientSecret) {
+        throw new Error('Missing Reddit client ID or secret')
+      }
+      
+      const auth = btoa(`${this.config.clientId}:${this.config.clientSecret}`)
       console.log('  - Auth header:', `Basic ${auth.substring(0, 20)}...`)
       
       const requestBody = new URLSearchParams({

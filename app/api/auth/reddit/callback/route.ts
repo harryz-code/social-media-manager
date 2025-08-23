@@ -13,8 +13,12 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('🔍 Server-side Reddit token exchange:')
-    console.log('  - Code:', code)
+    console.log('  - Code:', code.substring(0, 10) + '...')
     console.log('  - State:', state)
+    console.log('  - Environment variables:')
+    console.log('    - Client ID:', process.env.NEXT_PUBLIC_REDDIT_CLIENT_ID ? '✅ Set' : '❌ Missing')
+    console.log('    - Client Secret:', process.env.REDDIT_CLIENT_SECRET ? '✅ Set' : '❌ Missing')
+    console.log('    - Redirect URI:', process.env.NEXT_PUBLIC_REDDIT_REDIRECT_URI)
 
     // Exchange the authorization code for access token
     const tokens = await RedditAPI.exchangeCodeForToken(code)
