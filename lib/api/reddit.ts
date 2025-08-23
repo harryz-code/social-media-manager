@@ -91,6 +91,11 @@ export class RedditAPI {
         redirect_uri: this.config.redirectUri
       })
       
+      console.log('🔍 Reddit token exchange request:')
+      console.log('  - URL:', `${this.BASE_URL}/access_token`)
+      console.log('  - Body:', requestBody.toString())
+      console.log('  - Redirect URI being sent:', this.config.redirectUri)
+      
       console.log('  - Request body:', requestBody.toString())
       
       const response = await fetch(`${this.BASE_URL}/access_token`, {
@@ -108,7 +113,11 @@ export class RedditAPI {
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('  - Error response body:', errorText)
+        console.error('❌ Reddit token exchange failed:')
+        console.error('  - Status:', response.status)
+        console.error('  - Status Text:', response.statusText)
+        console.error('  - Response:', errorText)
+        console.error('  - Headers:', Object.fromEntries(response.headers.entries()))
         throw new Error(`Token exchange failed: ${response.status} - ${errorText}`)
       }
 
