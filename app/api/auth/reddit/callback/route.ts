@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { RedditAPI } from '@/lib/api/reddit'
 
 export async function POST(request: NextRequest) {
+  console.log('🔍 Reddit callback API route called')
+  console.log('🔍 Environment check at start:')
+  console.log('  - NEXT_PUBLIC_REDDIT_CLIENT_ID:', process.env.NEXT_PUBLIC_REDDIT_CLIENT_ID ? 'Set' : 'Missing')
+  console.log('  - REDDIT_CLIENT_SECRET:', process.env.REDDIT_CLIENT_SECRET ? 'Set' : 'Missing')
+  console.log('  - NEXT_PUBLIC_REDDIT_REDIRECT_URI:', process.env.NEXT_PUBLIC_REDDIT_REDIRECT_URI)
+  
   try {
     const { code, state } = await request.json()
 
@@ -21,6 +27,13 @@ export async function POST(request: NextRequest) {
     console.log('    - Redirect URI:', process.env.NEXT_PUBLIC_REDDIT_REDIRECT_URI)
 
     // Exchange the authorization code for access token
+    console.log('🔄 About to call RedditAPI.exchangeCodeForToken...')
+    console.log('🔄 Code received:', code ? code.substring(0, 10) + '...' : 'No code')
+    
+    if (!code) {
+      throw new Error('No authorization code received')
+    }
+    
     const tokens = await RedditAPI.exchangeCodeForToken(code)
     
     console.log('✅ Token exchange successful:')
