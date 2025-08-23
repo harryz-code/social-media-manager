@@ -36,17 +36,9 @@ export async function POST(request: NextRequest) {
     
     console.log('🔄 About to call RedditAPI.exchangeCodeForToken...')
     
-    // Test if RedditAPI is working
-    try {
-      const tokens = await RedditAPI.exchangeCodeForToken(code)
-      console.log('✅ RedditAPI.exchangeCodeForToken succeeded')
-    } catch (redditError) {
-      console.error('❌ RedditAPI.exchangeCodeForToken failed:', redditError)
-      console.error('❌ Error message:', redditError instanceof Error ? redditError.message : 'Unknown error')
-      console.error('❌ Error stack:', redditError instanceof Error ? redditError.stack : 'No stack')
-      throw redditError
-    }
-    
+    // Exchange the authorization code for access token
+    const tokens = await RedditAPI.exchangeCodeForToken(code)
+    console.log('✅ RedditAPI.exchangeCodeForToken succeeded')
     console.log('✅ Token exchange successful:')
     console.log('  - Access Token:', tokens.accessToken.substring(0, 20) + '...')
     console.log('  - Refresh Token:', tokens.refreshToken.substring(0, 20) + '...')
@@ -81,8 +73,8 @@ export async function POST(request: NextRequest) {
       message: errorMessage,
       stack: errorStack,
       config: {
-        clientId: process.env.NEXT_PUBLIC_REDDIT_CLIENT_ID ? 'Set' : 'Missing',
-        clientSecret: process.env.REDDIT_CLIENT_SECRET ? 'Set' : 'Missing',
+        clientId: process.env.NEXT_PUBLIC_REDDIT_CLIENT_ID ? process.env.NEXT_PUBLIC_REDDIT_CLIENT_ID.substring(0, 10) + '...' : 'Missing',
+        clientSecret: process.env.REDDIT_CLIENT_SECRET ? process.env.REDDIT_CLIENT_SECRET.substring(0, 10) + '...' : 'Missing',
         redirectUri: process.env.NEXT_PUBLIC_REDDIT_REDIRECT_URI
       }
     })
@@ -92,8 +84,8 @@ export async function POST(request: NextRequest) {
         error: errorMessage,
         details: errorStack,
         debug: {
-          clientId: process.env.NEXT_PUBLIC_REDDIT_CLIENT_ID ? 'Set' : 'Missing',
-          clientSecret: process.env.REDDIT_CLIENT_SECRET ? 'Set' : 'Missing',
+          clientId: process.env.NEXT_PUBLIC_REDDIT_CLIENT_ID ? process.env.NEXT_PUBLIC_REDDIT_CLIENT_ID.substring(0, 10) + '...' : 'Missing',
+          clientSecret: process.env.REDDIT_CLIENT_SECRET ? process.env.REDDIT_CLIENT_SECRET.substring(0, 10) + '...' : 'Missing',
           redirectUri: process.env.NEXT_PUBLIC_REDDIT_REDIRECT_URI
         }
       },
