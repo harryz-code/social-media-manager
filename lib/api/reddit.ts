@@ -42,24 +42,27 @@ export class RedditAPI {
   private static readonly BASE_URL = 'https://www.reddit.com/api/v1'
   private static readonly OAUTH_URL = 'https://oauth.reddit.com'
   
-  private static config: RedditAuthConfig = {
-    clientId: process.env.NEXT_PUBLIC_REDDIT_CLIENT_ID || '',
-    clientSecret: process.env.REDDIT_CLIENT_SECRET || '',
-    redirectUri: process.env.NEXT_PUBLIC_REDDIT_REDIRECT_URI || 'http://localhost:3000/auth/reddit/callback',
-    userAgent: 'PostGenius/1.0.0 by PostGenius'
+  private static getConfig(): RedditAuthConfig {
+    return {
+      clientId: process.env.NEXT_PUBLIC_REDDIT_CLIENT_ID || '',
+      clientSecret: process.env.REDDIT_CLIENT_SECRET || '',
+      redirectUri: process.env.NEXT_PUBLIC_REDDIT_REDIRECT_URI || 'http://localhost:3000/auth/reddit/callback',
+      userAgent: 'PostGenius/1.0.0 by PostGenius'
+    }
   }
 
   // OAuth Authentication Flow
   static getAuthUrl(): string {
+    const config = this.getConfig()
     console.log('🔍 Reddit OAuth Debug:')
-    console.log('  - Client ID:', this.config.clientId)
-    console.log('  - Redirect URI:', this.config.redirectUri)
+    console.log('  - Client ID:', config.clientId)
+    console.log('  - Redirect URI:', config.redirectUri)
     
     const params = new URLSearchParams({
-      client_id: this.config.clientId,
+      client_id: config.clientId,
       response_type: 'code',
       state: Math.random().toString(36).substring(7),
-      redirect_uri: this.config.redirectUri,
+      redirect_uri: config.redirectUri,
       duration: 'permanent',
       scope: 'identity read submit edit history'
     })
@@ -72,29 +75,30 @@ export class RedditAPI {
 
   static async exchangeCodeForToken(code: string): Promise<{ accessToken: string; refreshToken: string }> {
     try {
+      const config = this.getConfig()
       console.log('🔍 Reddit token exchange debug:')
-      console.log('  - Client ID:', this.config.clientId)
-      console.log('  - Client Secret:', this.config.clientSecret ? 'Set' : 'Missing')
-      console.log('  - Redirect URI:', this.config.redirectUri)
+      console.log('  - Client ID:', config.clientId)
+      console.log('  - Client Secret:', config.clientSecret ? config.clientSecret.substring(0, 10) + '...' : 'Missing')
+      console.log('  - Redirect URI:', config.redirectUri)
       console.log('  - Code length:', code.length)
       
-      if (!this.config.clientId || !this.config.clientSecret) {
+      if (!config.clientId || !config.clientSecret) {
         throw new Error('Missing Reddit client ID or secret')
       }
       
-      const auth = btoa(`${this.config.clientId}:${this.config.clientSecret}`)
+      const auth = btoa(`${config.clientId}:${config.clientSecret}`)
       console.log('  - Auth header:', `Basic ${auth.substring(0, 20)}...`)
       
       const requestBody = new URLSearchParams({
         grant_type: 'authorization_code',
         code,
-        redirect_uri: this.config.redirectUri
+        redirect_uri: config.redirectUri
       })
       
       console.log('🔍 Reddit token exchange request:')
       console.log('  - URL:', `${this.BASE_URL}/access_token`)
       console.log('  - Body:', requestBody.toString())
-      console.log('  - Redirect URI being sent:', this.config.redirectUri)
+      console.log('  - Redirect URI being sent:', config.redirectUri)
       
       console.log('  - Request body:', requestBody.toString())
       
@@ -103,7 +107,7 @@ export class RedditAPI {
         headers: {
           'Authorization': `Basic ${auth}`,
           'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': this.config.userAgent
+          'User-Agent': config.userAgent
         },
         body: requestBody
       })
@@ -142,10 +146,11 @@ export class RedditAPI {
   // Profile Information
   static async getProfile(accessToken: string): Promise<RedditProfile> {
     try {
+      const config = this.getConfig()
       const response = await fetch(`${this.OAUTH_URL}/api/v1/me`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
-          'User-Agent': this.config.userAgent
+          'User-Agent': config.userAgent
         }
       })
 
@@ -178,6 +183,7 @@ export class RedditAPI {
     flair?: string
   ): Promise<string> {
     try {
+      const config = this.getConfig()
       console.log('🔍 Reddit post submission debug:')
       console.log('  - Subreddit:', subreddit)
       console.log('  - Title length:', title.length)
@@ -200,7 +206,7 @@ export class RedditAPI {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': this.config.userAgent
+          'User-Agent': config.userAgent
         },
         body: requestBody
       })
