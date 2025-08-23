@@ -64,6 +64,7 @@ function RedditCallbackContent() {
         if (!response.ok) {
           const errorData = await response.json()
           console.error('❌ API Error response:', errorData)
+          console.error('🔍 Debug info from server:', errorData.debug)
           throw new Error(errorData.error || `Failed to exchange code for token (${response.status})`)
         }
 

@@ -49,10 +49,29 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('❌ Server-side Reddit callback error:', error)
     
+    // Return more detailed error information
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const errorStack = error instanceof Error ? error.stack : undefined
+    
+    console.error('🔍 Detailed error info:', {
+      message: errorMessage,
+      stack: errorStack,
+      config: {
+        clientId: process.env.NEXT_PUBLIC_REDDIT_CLIENT_ID ? 'Set' : 'Missing',
+        clientSecret: process.env.REDDIT_CLIENT_SECRET ? 'Set' : 'Missing',
+        redirectUri: process.env.NEXT_PUBLIC_REDDIT_REDIRECT_URI
+      }
+    })
+    
     return NextResponse.json(
       { 
-        error: error instanceof Error ? error.message : 'Failed to authenticate with Reddit',
-        details: error instanceof Error ? error.stack : undefined
+        error: errorMessage,
+        details: errorStack,
+        debug: {
+          clientId: process.env.NEXT_PUBLIC_REDDIT_CLIENT_ID ? 'Set' : 'Missing',
+          clientSecret: process.env.REDDIT_CLIENT_SECRET ? 'Set' : 'Missing',
+          redirectUri: process.env.NEXT_PUBLIC_REDDIT_REDIRECT_URI
+        }
       },
       { status: 500 }
     )
