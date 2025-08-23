@@ -33,12 +33,21 @@ export class XAPI {
   private static readonly TOKEN_URL = 'https://api.twitter.com/2/oauth2/token'
 
   private static getAuthConfig(): XAuthConfig {
-    return {
+    const config = {
       clientId: process.env.NEXT_PUBLIC_X_CLIENT_ID || '',
       clientSecret: process.env.X_CLIENT_SECRET || '',
       redirectUri: process.env.NEXT_PUBLIC_X_REDIRECT_URI || 'http://localhost:3000/auth/x/callback',
       scope: ['tweet.read', 'tweet.write', 'users.read']
     }
+    
+    console.log('🔧 X Auth Config:', {
+      clientId: config.clientId ? '✅ Set' : '❌ Missing',
+      clientSecret: config.clientSecret ? '✅ Set' : '❌ Missing',
+      redirectUri: config.redirectUri,
+      scope: config.scope
+    })
+    
+    return config
   }
 
   static getAuthUrl(): string {
@@ -69,7 +78,7 @@ export class XAPI {
       encodedRedirectUri: redirectUri
     })
 
-    return fullUrl
+    return `${this.AUTH_BASE}?${params.toString()}`
   }
 
   static async exchangeCodeForToken(code: string, codeVerifier: string): Promise<{
