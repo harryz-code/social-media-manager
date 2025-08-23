@@ -243,12 +243,13 @@ export class RedditAPI {
     url: string
   ): Promise<string> {
     try {
+      const config = this.getConfig()
       const response = await fetch(`${this.OAUTH_URL}/api/submit`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': this.config.userAgent
+          'User-Agent': config.userAgent
         },
         body: new URLSearchParams({
           sr: subreddit,
@@ -279,10 +280,11 @@ export class RedditAPI {
   // Get User's Posts
   static async getUserPosts(accessToken: string, username: string, limit: number = 25): Promise<RedditPost[]> {
     try {
+      const config = this.getConfig()
       const response = await fetch(`${this.OAUTH_URL}/user/${username}/submitted?limit=${limit}`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
-          'User-Agent': this.config.userAgent
+          'User-Agent': config.userAgent
         }
       })
 
@@ -315,9 +317,10 @@ export class RedditAPI {
   // Get Subreddit Information
   static async getSubredditInfo(subreddit: string): Promise<RedditSubreddit | null> {
     try {
+      const config = this.getConfig()
       const response = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`, {
         headers: {
-          'User-Agent': this.config.userAgent
+          'User-Agent': config.userAgent
         }
       })
 
@@ -345,10 +348,11 @@ export class RedditAPI {
   // Validate Access Token
   static async validateToken(accessToken: string): Promise<boolean> {
     try {
+      const config = this.getConfig()
       const response = await fetch(`${this.OAUTH_URL}/api/v1/me`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
-          'User-Agent': this.config.userAgent
+          'User-Agent': config.userAgent
         }
       })
 
